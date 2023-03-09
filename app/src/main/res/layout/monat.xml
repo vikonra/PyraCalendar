@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:paddingVertical="1dp"
+    android:background="@drawable/tag"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <include
+        android:id="@+id/tag1"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag2"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag1"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag3"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag2"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag4"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag3"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag5"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag4"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag6"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag5"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag7"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag6"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag8"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag7"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag9"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag10"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag8"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag10"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag11"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag9"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag11"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag12"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag10"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag12"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag13"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag11"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag13"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag14"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag12"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag14"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag15"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag13"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag15"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag14"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag16"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag17"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag15"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag17"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag18"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag16"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag18"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag19"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag17"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag19"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag20"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag18"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag20"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag21"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag19"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag21"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag22"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag20"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag22"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag23"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag21"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag23"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag22"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag24"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag25"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag23"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag25"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag26"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag24"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag26"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag27"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag25"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag27"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag28"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag26"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag28"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag29"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag27"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag29"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag30"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag28"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag30"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toTopOf="@+id/tag31"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag29"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <include
+        android:id="@+id/tag31"
+        style="@style/Tag"
+        layout="@layout/tag"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tag30"
+        app:layout_constraintVertical_bias="0.5" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

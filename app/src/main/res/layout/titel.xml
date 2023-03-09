@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_height="wrap_content" android:layout_width="0dp">
+
+    <TextView
+        android:id="@+id/txtMonat1"
+        style="@style/TextView_Big"
+        android:text="Jan"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat2"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat2"
+        style="@style/TextView_Big"
+        android:text="Feb"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat3"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat1"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat3"
+        style="@style/TextView_Big"
+        android:text="Mär"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat4"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat2"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtMonat4"
+        style="@style/TextView_Big"
+        android:text="Apr"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat5"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat3"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat5"
+        style="@style/TextView_Big"
+        android:text="Mai"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat6"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat4"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat6"
+        style="@style/TextView_Big"
+        android:text="Jun"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat7"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat5"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat7"
+        style="@style/TextView_Big"
+        android:text="Jul"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat8"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat6"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat8"
+        style="@style/TextView_Big"
+        android:text="Aug"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat9"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat7"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat9"
+        style="@style/TextView_Big"
+        android:text="Sep"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat10"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat8"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat10"
+        style="@style/TextView_Big"
+        android:text="Okt"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat11"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat9"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat11"
+        style="@style/TextView_Big"
+        android:text="Nov"
+        app:layout_constraintEnd_toStartOf="@+id/txtMonat12"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat10"
+        app:layout_constraintTop_toTopOf="@+id/txtMonat12" />
+
+    <TextView
+        android:id="@+id/txtMonat12"
+        style="@style/TextView_Big"
+        android:text="Dez"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/txtMonat11"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
