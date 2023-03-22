@@ -13,7 +13,11 @@
     <color name="medium">#0F615A</color>
     <color name="light">#267E76</color>
 
-    <color name="blockung">#1F1F1F</color>
-    <color name="buchung">#870000</color>
-    <color name="sonstiges">#008F62</color>
+    <color name="blockung">#292929</color>
+    <color name="blockung_rand">#0B0B0B</color>
+    <color name="buchung">#930000</color>
+    <color name="buchung_rand">#5C0000</color>
+    <color name="sonstiges">#00A370</color>
+    <color name="sonstiges_rand">#006746</color>
+    <color name="rahmen">#E6E6E6</color>
 </resources>

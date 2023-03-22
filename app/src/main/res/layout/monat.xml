@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="0dp"
     android:layout_height="0dp"
-    android:paddingVertical="1dp"
+    android:paddingVertical="0.5dp"
     android:background="@drawable/tag"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 

@@ -4,13 +4,12 @@
     android:layout_width="0dp"
     android:layout_height="0dp"
     android:background="@drawable/tag"
-    android:padding="1dp">
+    android:padding="0.5dp">
 
     <TextView
         android:id="@+id/txtTag"
         style="@style/TextView_KalenderDatum"
-        android:layout_width="wrap_content"
-        android:layout_marginStart="2dp"
+        android:layout_width="12dp"
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

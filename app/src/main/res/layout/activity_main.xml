@@ -143,18 +143,18 @@
 
     <View
         android:id="@+id/rahmen_links"
-        android:layout_width="1dp"
+        android:layout_width="0.5dp"
         android:layout_height="0dp"
-        android:background="@color/black_theme"
+        android:background="@color/rahmen"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/monat1"
         app:layout_constraintTop_toTopOf="@+id/monat1" />
 
     <View
         android:id="@+id/rahmen_rechts"
-        android:layout_width="1dp"
+        android:layout_width="0.5dp"
         android:layout_height="0dp"
-        android:background="@color/black_theme"
+        android:background="@color/rahmen"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/monat1"
         app:layout_constraintTop_toTopOf="@+id/monat1" />

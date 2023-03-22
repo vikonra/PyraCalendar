@@ -3,6 +3,7 @@
     <item>
         <shape>
             <solid android:color="@color/sonstiges" />
+            <stroke android:width="0.5dp" android:color="@color/sonstiges_rand" />
         </shape>
     </item>
 </selector>
