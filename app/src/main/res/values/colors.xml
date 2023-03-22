@@ -15,4 +15,5 @@
 
     <color name="blockung">#1F1F1F</color>
     <color name="buchung">#870000</color>
+    <color name="sonstiges">#008F62</color>
 </resources>

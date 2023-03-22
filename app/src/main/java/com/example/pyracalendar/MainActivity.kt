@@ -1,27 +1,37 @@
 package com.example.pyracalendar
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.children
 import androidx.fragment.app.FragmentActivity
 import com.example.pyracalendar.database.Test
+import com.example.pyracalendar.database.Veranstaltung
 import com.example.pyracalendar.databinding.ActivityMainBinding
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.data.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 class MainActivity : FragmentActivity() {
 
     private var user: FirebaseUser? = null
     private var mAuth: FirebaseAuth? = null
     private lateinit var database: DatabaseReference
+
+    private var jahr: Int = 0
 
     private lateinit var binding: ActivityMainBinding
 
@@ -35,65 +45,275 @@ class MainActivity : FragmentActivity() {
                 .commitNow()
         }
 
+        jahr = LocalDate.now().year
+        //TODO Funktion, um das Jahr zu ändern (Pfeilbutton etc.)
+
+
         mAuth = FirebaseAuth.getInstance();
         checkCurrentUser()
         database = FirebaseDatabase.getInstance(Constants.DOMAIN).reference
 
-        /** AUF DATENBANK SCHREIBEN
-            val test = Test("-NL0xDw4mZekqSDinXR3", "Tee2")
-            database.child("Test").push().setValue(test)
-        **/
+        //Liste Veranstaltungen abfragen und setzen
+        val databaseVeranstaltung: DatabaseReference =
+            FirebaseDatabase.getInstance(Constants.DOMAIN).getReference("Veranstaltung")
+        val veranstaltungListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-        setTagNummern()
-        binding.monat1.tag1.txt1.text = "Veranstaltung (C-1500)"
-        binding.monat1.tag1.txt2.text = "Event (B-800)"
-        binding.monat1.tag1.txt2.visibility = View.VISIBLE
-        binding.monat1.tag2.txt1.text = "Hochzeit (P-250)"
+                var vaList: ArrayList<Veranstaltung> = ArrayList()
+
+                for (veranstaltungSnapshot in dataSnapshot.children) {
+                    val veranstaltung: Veranstaltung? =
+                        veranstaltungSnapshot.getValue(Veranstaltung::class.java)
+                    if (veranstaltung != null) {
+                        if (veranstaltung.datumBeginn != null) {
+                            if (veranstaltung.datumBeginn.substring(6, 10).toInt() == jahr) {
+                                vaList.add(veranstaltung)
+                            }
+                        }
+                    }
+                }
+                kalenderSetzen(vaList)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+                Log.w(ContentValues.TAG, "loadPost:onCancelled", databaseError.toException())
+            }
+        }
+        databaseVeranstaltung.orderByChild("sortierung").addValueEventListener(veranstaltungListener)
     }
 
-    fun checkCurrentUser() {
-        user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            signIn("vk@pyramidemainz.de", "Pyraappvk")
+    private fun inTagen(datum: String?): Long {
+        return if (!datum.isNullOrEmpty()) {
+            val tag: Long = datum.substring(0, 2).toLong()
+            val monat: Long = datum.substring(3, 5).toLong()
+            val jahr: Long = datum.substring(6, 10).toLong()
+            tag + monat * 12 + jahr * 365
+        } else {
+            0
         }
     }
 
-    @SuppressLint("SuspiciousIndentation")
-    private fun signIn(email: String, password: String) {
-        // [START sign_in_with_email]
-        mAuth!!.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(
-                this
-            ) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithEmail:success")
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        this@MainActivity, "Authentication failed.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        // [END sign_in_with_email]
+    class KalenderEintrag() {
+        var tag: Int = 0
+        var monat: Int = 0
+        var jahr: Int = 0
+        var name: String = ""
+        var status: String = ""
     }
 
-    private fun signOut() {
-        AuthUI.getInstance()
-            .signOut(this)
-            .addOnCompleteListener {
-                // ...
+    private fun kalenderSetzen(vaList: ArrayList<Veranstaltung>) {
+        var kalenderListe: ArrayList<KalenderEintrag> = ArrayList()
+        for (va in vaList) {
+
+            //Aufbautage & Abbautage hinzufügen
+            if (va.aufbautage == true) {
+                if (!va.aufbauBeginn.isNullOrEmpty()) {
+                    val tage: Int = (inTagen(va.datumBeginn) - inTagen(va.aufbauBeginn)).toInt() - 1
+                    val date =
+                        LocalDate.parse(va.aufbauBeginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    for (i in 0..tage) {
+                        val k = KalenderEintrag()
+                        k.tag = date.plusDays(i.toLong()).dayOfMonth
+                        k.monat = date.plusDays(i.toLong()).monthValue
+                        k.jahr = date.plusDays(i.toLong()).year
+                        k.name = "(A) " + va.kunde.toString() + " (" + va.raum + ")"
+                        k.status = va.status.toString()
+                        kalenderListe.add(k)
+                    }
+                }
+                if (!va.abbauEnde.isNullOrEmpty()) {
+                    val tage: Int = (inTagen(va.abbauEnde) - inTagen(va.datumEnde)).toInt() - 1
+                    val date =
+                        LocalDate.parse(va.datumEnde, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                            .plusDays(1)
+                    for (i in 0..tage) {
+                        val k = KalenderEintrag()
+                        k.tag = date.plusDays(i.toLong()).dayOfMonth
+                        k.monat = date.plusDays(i.toLong()).monthValue
+                        k.jahr = date.plusDays(i.toLong()).year
+                        k.name = "(A) " + va.kunde.toString() + " (" + va.raum + ")"
+                        k.status = va.status.toString()
+                        kalenderListe.add(k)
+                    }
+                }
             }
+
+            //Veranstaltungstage hinzufügen
+            val tage: Int = (inTagen(va.datumEnde) - inTagen(va.datumBeginn)).toInt()
+            val date =
+                LocalDate.parse(va.datumBeginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+            for (i in 0..tage) {
+                val k = KalenderEintrag()
+                k.tag = date.plusDays(i.toLong()).dayOfMonth
+                k.monat = date.plusDays(i.toLong()).monthValue
+                k.jahr = date.plusDays(i.toLong()).year
+                k.name = va.kunde.toString() + " (" + va.raum + ")"
+                k.status = va.status.toString()
+                kalenderListe.add(k)
+            }
+        }
+        updateUI(kalenderListe)
+    }
+
+    private fun updateUI(kalenderListe: ArrayList<KalenderEintrag>) {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setTagNummern()
+        for (t in kalenderListe) {
+            when (t.monat) {
+                1 -> {
+                    when (t.tag) {
+                        1 -> {
+                            if (binding.monat1.tag1.txt1.text.isNullOrEmpty()) {
+                                binding.monat1.tag1.txt1.text = t.name
+                                binding.monat1.tag1.txt2.visibility = View.GONE
+                                binding.monat1.tag1.txt3.visibility = View.GONE
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag1.txt1.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag1.txt1.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag1.txt1.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            } else if (binding.monat1.tag1.txt2.text.isNullOrEmpty()) {
+                                binding.monat1.tag1.txt2.visibility = View.VISIBLE
+                                binding.monat1.tag1.txt2.text = t.name
+                                binding.monat1.tag1.txt3.visibility = View.GONE
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag1.txt2.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag1.txt2.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag1.txt2.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            } else {
+                                binding.monat1.tag1.txt3.visibility = View.VISIBLE
+                                binding.monat1.tag1.txt3.text = t.name
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag1.txt3.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag1.txt3.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag1.txt3.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            }
+                        }
+                        2 -> {
+                            if (binding.monat1.tag2.txt1.text.isNullOrEmpty()) {
+                                binding.monat1.tag2.txt1.text = t.name
+                                binding.monat1.tag2.txt2.visibility = View.GONE
+                                binding.monat1.tag2.txt3.visibility = View.GONE
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag2.txt1.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag2.txt1.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag2.txt1.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            } else if (binding.monat1.tag2.txt2.text.isNullOrEmpty()) {
+                                binding.monat1.tag2.txt2.visibility = View.VISIBLE
+                                binding.monat1.tag2.txt2.text = t.name
+                                binding.monat1.tag2.txt3.visibility = View.GONE
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag2.txt2.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag2.txt2.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag2.txt2.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            } else {
+                                binding.monat1.tag2.txt3.visibility = View.VISIBLE
+                                binding.monat1.tag2.txt3.text = t.name
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag2.txt3.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag2.txt3.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag2.txt3.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            }
+                        }
+                        3 -> {
+                            if (binding.monat1.tag3.txt1.text.isNullOrEmpty()) {
+                                binding.monat1.tag3.txt1.text = t.name
+                                binding.monat1.tag3.txt2.visibility = View.GONE
+                                binding.monat1.tag3.txt3.visibility = View.GONE
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag3.txt1.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag3.txt1.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag3.txt1.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            } else if (binding.monat1.tag3.txt2.text.isNullOrEmpty()) {
+                                binding.monat1.tag3.txt2.visibility = View.VISIBLE
+                                binding.monat1.tag3.txt2.text = t.name
+                                binding.monat1.tag3.txt3.visibility = View.GONE
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag3.txt2.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag3.txt2.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag3.txt2.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            } else {
+                                binding.monat1.tag3.txt3.visibility = View.VISIBLE
+                                binding.monat1.tag3.txt3.text = t.name
+                                when (t.status) {
+                                    Cons.BLOCKUNG -> binding.monat1.tag3.txt3.setBackgroundResource(
+                                        R.drawable.blockung
+                                    )
+                                    Cons.BUCHUNG -> binding.monat1.tag3.txt3.setBackgroundResource(
+                                        R.drawable.buchung
+                                    )
+                                    Cons.SONSTIGES -> binding.monat1.tag3.txt3.setBackgroundResource(
+                                        R.drawable.sonstiges
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
     private fun setTagNummern() {
         binding.monat1.tag1.txtTag.text = "1"
-        binding.monat1.tag1.txt1.setBackgroundResource(R.drawable.buchung)
-        binding.monat1.tag1.txt2.setBackgroundResource(R.drawable.blockung)
-        binding.monat1.tag2.txt1.setBackgroundResource(R.drawable.buchung)
         binding.monat1.tag2.txtTag.text = "2"
         binding.monat1.tag3.txtTag.text = "3"
         binding.monat1.tag4.txtTag.text = "4"
@@ -490,4 +710,40 @@ class MainActivity : FragmentActivity() {
         binding.monat12.tag31.txtTag.text = "31"
     }
 
+    fun checkCurrentUser() {
+        user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            signIn("vk@pyramidemainz.de", "Pyraappvk")
+        }
+    }
+
+    @SuppressLint("SuspiciousIndentation")
+    private fun signIn(email: String, password: String) {
+        // [START sign_in_with_email]
+        mAuth!!.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(
+                this
+            ) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithEmail:success")
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        this@MainActivity, "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        // [END sign_in_with_email]
+    }
+
+    private fun signOut() {
+        AuthUI.getInstance()
+            .signOut(this)
+            .addOnCompleteListener {
+                // ...
+            }
+    }
 }
