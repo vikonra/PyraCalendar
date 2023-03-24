@@ -3,27 +3,22 @@ package com.example.pyracalendar
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.ContentValues.TAG
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.children
 import androidx.fragment.app.FragmentActivity
-import com.example.pyracalendar.database.Test
 import com.example.pyracalendar.database.Veranstaltung
 import com.example.pyracalendar.databinding.ActivityMainBinding
+import com.example.pyracalendar.databinding.MonatBinding
+import com.example.pyracalendar.databinding.TagBinding
 import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.data.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
+import java.util.GregorianCalendar
 
 class MainActivity : FragmentActivity() {
 
@@ -46,14 +41,36 @@ class MainActivity : FragmentActivity() {
         }
 
         jahr = LocalDate.now().year
-        //TODO Funktion, um das Jahr zu ändern (Pfeilbutton etc.)
-
 
         mAuth = FirebaseAuth.getInstance();
         checkCurrentUser()
         database = FirebaseDatabase.getInstance(Constants.DOMAIN).reference
 
-        //Liste Veranstaltungen abfragen und setzen
+        kalenderAbfragen()
+    }
+
+    private fun inTagen(datum: String?): Int {
+        return if (!datum.isNullOrEmpty()) {
+            val localDate: LocalDate = LocalDate.of(
+                datum.substring(6, 10).toInt(),
+                datum.substring(3, 5).toInt(),
+                datum.substring(0, 2).toInt()
+            )
+            localDate.dayOfYear
+        } else {
+            0
+        }
+    }
+
+    class KalenderEintrag {
+        var tag: Int = 0
+        var monat: Int = 0
+        var jahr: Int = 0
+        var name: String = ""
+        var status: String = ""
+    }
+
+    private fun kalenderAbfragen() {
         val databaseVeranstaltung: DatabaseReference =
             FirebaseDatabase.getInstance(Constants.DOMAIN).getReference("Veranstaltung")
         val veranstaltungListener = object : ValueEventListener {
@@ -82,23 +99,6 @@ class MainActivity : FragmentActivity() {
         }
         databaseVeranstaltung.orderByChild("sortierung")
             .addValueEventListener(veranstaltungListener)
-    }
-
-    private fun inTagen(datum: String?): Int {
-        return if (!datum.isNullOrEmpty()) {
-            val localDate: LocalDate = LocalDate.of(datum.substring(6, 10).toInt(),datum.substring(3, 5).toInt(),datum.substring(0, 2).toInt())
-            localDate.dayOfYear
-        } else {
-            0
-        }
-    }
-
-    class KalenderEintrag {
-        var tag: Int = 0
-        var monat: Int = 0
-        var jahr: Int = 0
-        var name: String = ""
-        var status: String = ""
     }
 
     private fun kalenderSetzen(vaList: ArrayList<Veranstaltung>) {
@@ -158,2045 +158,223 @@ class MainActivity : FragmentActivity() {
     private fun updateUI(kalenderListe: ArrayList<KalenderEintrag>) {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.btnRight.setOnClickListener {
+            jahr++
+            kalenderAbfragen()
+        }
+        binding.btnLeft.setOnClickListener {
+            jahr--
+            kalenderAbfragen()
+        }
         setTagNummern()
+        binding.txtYear.text = jahr.toString()
+
         for (t in kalenderListe) {
             when (t.monat) {
                 1 -> {
-                    when (t.tag) {
-                        1 -> {
-                            if (binding.monat1.tag1.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag1.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag1.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag1.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag1.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag1.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag1.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag1.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag1.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag1.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag1.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag1.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag1.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag1.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag1.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag1.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        2 -> {
-                            if (binding.monat1.tag2.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag2.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag2.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag2.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag2.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag2.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag2.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag2.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag2.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag2.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag2.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag2.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag2.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag2.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag2.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag2.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        3 -> {
-                            if (binding.monat1.tag3.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag3.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag3.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag3.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag3.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag3.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag3.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag3.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag3.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag3.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag3.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag3.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag3.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag3.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag3.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag3.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        4 -> {
-                            if (binding.monat1.tag4.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag4.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag4.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag4.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag4.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag4.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag4.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag4.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag4.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag4.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag4.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag4.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag4.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag4.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag4.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag4.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        5 -> {
-                            if (binding.monat1.tag5.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag5.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag5.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag5.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag5.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag5.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag5.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag5.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag5.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag5.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag5.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag5.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag5.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag5.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag5.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag5.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        6 -> {
-                            if (binding.monat1.tag6.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag6.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag6.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag6.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag6.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag6.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag6.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag6.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag6.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag6.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag6.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag6.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag6.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag6.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag6.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag6.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        7 -> {
-                            if (binding.monat1.tag7.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag7.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag7.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag7.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag7.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag7.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag7.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag7.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag7.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag7.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag7.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag7.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag7.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag7.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag7.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag7.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        8 -> {
-                            if (binding.monat1.tag8.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag8.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag8.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag8.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag8.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag8.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag8.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag8.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag8.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag8.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag8.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag8.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag8.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag8.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag8.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag8.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        9 -> {
-                            if (binding.monat1.tag9.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag9.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag9.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag9.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag9.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag9.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag9.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag9.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag9.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag9.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag9.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag9.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag9.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag9.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag9.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag9.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        10 -> {
-                            if (binding.monat1.tag10.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag10.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag10.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag10.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag10.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag10.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag10.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag10.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag10.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag10.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag10.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag10.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag10.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag10.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag10.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag10.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        11 -> {
-                            if (binding.monat1.tag11.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag11.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag11.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag11.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag11.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag11.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag11.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag11.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag11.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag11.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag11.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag11.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag11.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag11.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag11.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag11.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        12 -> {
-                            if (binding.monat1.tag12.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag12.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag12.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag12.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag12.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag12.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag12.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag12.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag12.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag12.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag12.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag12.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag12.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag12.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag12.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag12.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        13 -> {
-                            if (binding.monat1.tag13.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag13.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag13.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag13.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag13.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag13.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag13.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag13.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag13.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag13.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag13.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag13.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag13.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag13.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag13.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag13.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        14 -> {
-                            if (binding.monat1.tag14.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag14.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag14.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag14.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag14.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag14.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag14.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag14.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag14.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag14.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag14.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag14.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag14.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag14.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag14.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag14.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        15 -> {
-                            if (binding.monat1.tag15.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag15.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag15.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag15.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag15.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag15.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag15.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag15.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag15.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag15.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag15.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag15.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag15.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag15.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag15.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag15.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        16 -> {
-                            if (binding.monat1.tag16.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag16.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag16.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag16.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag16.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag16.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag16.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag16.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag16.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag16.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag16.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag16.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag16.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag16.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag16.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag16.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        17 -> {
-                            if (binding.monat1.tag17.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag17.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag17.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag17.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag17.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag17.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag17.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag17.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag17.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag17.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag17.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag17.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag17.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag17.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag17.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag17.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        18 -> {
-                            if (binding.monat1.tag18.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag18.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag18.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag18.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag18.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag18.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag18.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag18.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag18.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag18.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag18.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag18.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag18.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag18.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag18.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag18.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        19 -> {
-                            if (binding.monat1.tag19.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag19.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag19.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag19.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag19.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag19.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag19.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag19.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag19.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag19.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag19.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag19.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag19.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag19.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag19.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag19.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        20 -> {
-                            if (binding.monat1.tag20.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag20.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag20.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag20.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag20.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag20.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag20.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag20.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag20.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag20.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag20.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag20.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag20.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag20.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag20.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag20.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        21 -> {
-                            if (binding.monat1.tag21.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag21.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag21.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag21.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag21.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag21.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag21.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag21.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag21.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag21.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag21.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag21.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag21.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag21.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag21.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag21.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        22 -> {
-                            if (binding.monat1.tag22.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag22.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag22.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag22.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag22.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag22.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag22.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag22.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag22.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag22.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag22.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag22.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag22.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag22.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag22.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag22.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        23 -> {
-                            if (binding.monat1.tag23.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag23.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag23.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag23.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag23.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag23.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag23.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag23.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag23.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag23.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag23.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag23.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag23.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag23.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag23.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag23.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        24 -> {
-                            if (binding.monat1.tag24.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag24.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag24.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag24.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag24.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag24.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag24.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag24.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag24.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag24.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag24.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag24.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag24.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag24.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag24.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag24.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        25 -> {
-                            if (binding.monat1.tag25.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag25.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag25.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag25.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag25.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag25.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag25.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag25.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag25.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag25.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag25.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag25.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag25.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag25.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag25.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag25.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        26 -> {
-                            if (binding.monat1.tag26.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag26.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag26.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag26.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag26.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag26.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag26.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag26.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag26.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag26.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag26.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag26.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag26.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag26.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag26.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag26.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        27 -> {
-                            if (binding.monat1.tag27.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag27.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag27.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag27.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag27.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag27.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag27.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag27.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag27.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag27.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag27.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag27.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag27.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag27.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag27.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag27.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        28 -> {
-                            if (binding.monat1.tag28.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag28.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag28.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag28.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag28.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag28.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag28.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag28.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag28.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag28.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag28.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag28.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag28.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag28.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag28.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag28.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        29 -> {
-                            if (binding.monat1.tag29.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag29.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag29.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag29.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag29.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag29.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag29.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag29.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag29.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag29.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag29.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag29.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag29.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag29.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag29.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag29.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        30 -> {
-                            if (binding.monat1.tag30.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag30.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag30.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag30.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag30.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag30.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag30.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag30.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag30.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag30.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag30.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag30.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag30.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag30.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag30.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag30.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                        31 -> {
-                            if (binding.monat1.tag31.txt1.text.isNullOrEmpty()) {
-                                binding.monat1.tag31.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag31.txt1.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag31.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag31.txt1.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else if (binding.monat1.tag31.txt2.text.isNullOrEmpty()) {
-                                binding.monat1.tag31.txt2.visibility = View.VISIBLE
-                                binding.monat1.tag31.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag31.txt2.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag31.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag31.txt2.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            } else {
-                                binding.monat1.tag31.txt3.visibility = View.VISIBLE
-                                binding.monat1.tag31.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat1.tag31.txt3.setBackgroundResource(R.drawable.blockung)
-                                    Cons.BUCHUNG -> binding.monat1.tag31.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat1.tag31.txt3.setBackgroundResource(R.drawable.sonstiges)
-                                }
-                            }
-                        }
-                    }
+                    val binding = binding.monat1
+                    monatSetzen(binding, t)
                 }
                 2 -> {
-                    when (t.tag) {
-                        1 -> {
-                            if (binding.monat2.tag1.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag1.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag1.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag1.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag1.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag1.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag1.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag1.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag1.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag1.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag1.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag1.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag1.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag1.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag1.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag1.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        2 -> {
-                            if (binding.monat2.tag2.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag2.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag2.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag2.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag2.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag2.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag2.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag2.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag2.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag2.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag2.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag2.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag2.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag2.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag2.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag2.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        3 -> {
-                            if (binding.monat2.tag3.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag3.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag3.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag3.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag3.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag3.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag3.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag3.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag3.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag3.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag3.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag3.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag3.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag3.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag3.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag3.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        4 -> {
-                            if (binding.monat2.tag4.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag4.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag4.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag4.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag4.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag4.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag4.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag4.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag4.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag4.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag4.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag4.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag4.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag4.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag4.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag4.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        5 -> {
-                            if (binding.monat2.tag5.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag5.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag5.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag5.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag5.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag5.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag5.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag5.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag5.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag5.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag5.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag5.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag5.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag5.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag5.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag5.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        6 -> {
-                            if (binding.monat2.tag6.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag6.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag6.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag6.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag6.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag6.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag6.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag6.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag6.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag6.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag6.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag6.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag6.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag6.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag6.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag6.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        7 -> {
-                            if (binding.monat2.tag7.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag7.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag7.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag7.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag7.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag7.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag7.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag7.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag7.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag7.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag7.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag7.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag7.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag7.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag7.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag7.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        8 -> {
-                            if (binding.monat2.tag8.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag8.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag8.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag8.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag8.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag8.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag8.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag8.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag8.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag8.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag8.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag8.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag8.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag8.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag8.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag8.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        9 -> {
-                            if (binding.monat2.tag9.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag9.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag9.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag9.txt1.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag9.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag9.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag9.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag9.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag9.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag9.txt2.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag9.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag9.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag9.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag9.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag9.txt3.setBackgroundResource(R.drawable.buchung)
-                                    Cons.SONSTIGES -> binding.monat2.tag9.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        10 -> {
-                            if (binding.monat2.tag10.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag10.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag10.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag10.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag10.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag10.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag10.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag10.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag10.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag10.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag10.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag10.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag10.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag10.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag10.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag10.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        11 -> {
-                            if (binding.monat2.tag11.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag11.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag11.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag11.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag11.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag11.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag11.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag11.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag11.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag11.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag11.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag11.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag11.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag11.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag11.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag11.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        12 -> {
-                            if (binding.monat2.tag12.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag12.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag12.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag12.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag12.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag12.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag12.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag12.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag12.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag12.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag12.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag12.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag12.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag12.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag12.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag12.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        13 -> {
-                            if (binding.monat2.tag13.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag13.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag13.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag13.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag13.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag13.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag13.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag13.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag13.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag13.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag13.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag13.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag13.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag13.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag13.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag13.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        14 -> {
-                            if (binding.monat2.tag14.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag14.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag14.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag14.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag14.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag14.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag14.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag14.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag14.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag14.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag14.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag14.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag14.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag14.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag14.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag14.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        15 -> {
-                            if (binding.monat2.tag15.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag15.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag15.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag15.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag15.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag15.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag15.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag15.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag15.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag15.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag15.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag15.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag15.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag15.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag15.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag15.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        16 -> {
-                            if (binding.monat2.tag16.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag16.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag16.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag16.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag16.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag16.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag16.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag16.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag16.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag16.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag16.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag16.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag16.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag16.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag16.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag16.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        17 -> {
-                            if (binding.monat2.tag17.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag17.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag17.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag17.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag17.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag17.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag17.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag17.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag17.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag17.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag17.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag17.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag17.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag17.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag17.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag17.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        18 -> {
-                            if (binding.monat2.tag18.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag18.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag18.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag18.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag18.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag18.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag18.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag18.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag18.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag18.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag18.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag18.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag18.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag18.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag18.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag18.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        19 -> {
-                            if (binding.monat2.tag19.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag19.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag19.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag19.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag19.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag19.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag19.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag19.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag19.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag19.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag19.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag19.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag19.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag19.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag19.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag19.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        20 -> {
-                            if (binding.monat2.tag20.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag20.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag20.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag20.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag20.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag20.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag20.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag20.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag20.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag20.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag20.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag20.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag20.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag20.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag20.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag20.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        21 -> {
-                            if (binding.monat2.tag21.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag21.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag21.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag21.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag21.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag21.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag21.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag21.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag21.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag21.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag21.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag21.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag21.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag21.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag21.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag21.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        22 -> {
-                            if (binding.monat2.tag22.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag22.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag22.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag22.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag22.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag22.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag22.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag22.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag22.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag22.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag22.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag22.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag22.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag22.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag22.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag22.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        23 -> {
-                            if (binding.monat2.tag23.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag23.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag23.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag23.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag23.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag23.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag23.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag23.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag23.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag23.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag23.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag23.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag23.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag23.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag23.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag23.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        24 -> {
-                            if (binding.monat2.tag24.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag24.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag24.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag24.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag24.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag24.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag24.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag24.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag24.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag24.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag24.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag24.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag24.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag24.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag24.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag24.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        25 -> {
-                            if (binding.monat2.tag25.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag25.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag25.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag25.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag25.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag25.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag25.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag25.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag25.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag25.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag25.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag25.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag25.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag25.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag25.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag25.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        26 -> {
-                            if (binding.monat2.tag26.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag26.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag26.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag26.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag26.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag26.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag26.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag26.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag26.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag26.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag26.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag26.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag26.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag26.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag26.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag26.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        27 -> {
-                            if (binding.monat2.tag27.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag27.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag27.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag27.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag27.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag27.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag27.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag27.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag27.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag27.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag27.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag27.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag27.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag27.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag27.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag27.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        28 -> {
-                            if (binding.monat2.tag28.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag28.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag28.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag28.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag28.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag28.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag28.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag28.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag28.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag28.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag28.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag28.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag28.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag28.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag28.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag28.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                        29 -> {
-                            if (binding.monat2.tag29.txt1.text.isNullOrEmpty()) {
-                                binding.monat2.tag29.txt1.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag29.txt1.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag29.txt1.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag29.txt1.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else if (binding.monat2.tag29.txt2.text.isNullOrEmpty()) {
-                                binding.monat2.tag29.txt2.visibility = View.VISIBLE
-                                binding.monat2.tag29.txt2.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag29.txt2.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag29.txt2.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag29.txt2.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            } else {
-                                binding.monat2.tag29.txt3.visibility = View.VISIBLE
-                                binding.monat2.tag29.txt3.text = t.name
-                                when (t.status) {
-                                    Cons.BLOCKUNG -> binding.monat2.tag29.txt3.setBackgroundResource(
-                                        R.drawable.blockung
-                                    )
-                                    Cons.BUCHUNG -> binding.monat2.tag29.txt3.setBackgroundResource(
-                                        R.drawable.buchung
-                                    )
-                                    Cons.SONSTIGES -> binding.monat2.tag29.txt3.setBackgroundResource(
-                                        R.drawable.sonstiges
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    val binding = binding.monat2
+                    monatSetzen(binding, t)
                 }
+                3 -> {
+                    val binding = binding.monat3
+                    monatSetzen(binding, t)
+                }
+                4 -> {
+                    val binding = binding.monat4
+                    monatSetzen(binding, t)
+                }
+                5 -> {
+                    val binding = binding.monat5
+                    monatSetzen(binding, t)
+                }
+                6 -> {
+                    val binding = binding.monat6
+                    monatSetzen(binding, t)
+                }
+                7 -> {
+                    val binding = binding.monat7
+                    monatSetzen(binding, t)
+                }
+                8 -> {
+                    val binding = binding.monat8
+                    monatSetzen(binding, t)
+                }
+                9 -> {
+                    val binding = binding.monat9
+                    monatSetzen(binding, t)
+                }
+                10 -> {
+                    val binding = binding.monat10
+                    monatSetzen(binding, t)
+                }
+                11 -> {
+                    val binding = binding.monat11
+                    monatSetzen(binding, t)
+                }
+                12 -> {
+                    val binding = binding.monat12
+                    monatSetzen(binding, t)
+                }
+            }
+        }
+    }
+
+    private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag) {
+        when (t.tag) {
+            1 -> {
+                val bindingTag = bindingMonat.tag1
+                tagSetzen(bindingTag, t)
+            }
+            2 -> {
+                val bindingTag = bindingMonat.tag2
+                tagSetzen(bindingTag, t)
+            }
+            3 -> {
+                val bindingTag = bindingMonat.tag3
+                tagSetzen(bindingTag, t)
+            }
+            4 -> {
+                val bindingTag = bindingMonat.tag4
+                tagSetzen(bindingTag, t)
+            }
+            5 -> {
+                val bindingTag = bindingMonat.tag5
+                tagSetzen(bindingTag, t)
+            }
+            6 -> {
+                val bindingTag = bindingMonat.tag6
+                tagSetzen(bindingTag, t)
+            }
+            7 -> {
+                val bindingTag = bindingMonat.tag7
+                tagSetzen(bindingTag, t)
+            }
+            8 -> {
+                val bindingTag = bindingMonat.tag8
+                tagSetzen(bindingTag, t)
+            }
+            9 -> {
+                val bindingTag = bindingMonat.tag9
+                tagSetzen(bindingTag, t)
+            }
+            10 -> {
+                val bindingTag = bindingMonat.tag10
+                tagSetzen(bindingTag, t)
+            }
+            11 -> {
+                val bindingTag = bindingMonat.tag11
+                tagSetzen(bindingTag, t)
+            }
+            12 -> {
+                val bindingTag = bindingMonat.tag12
+                tagSetzen(bindingTag, t)
+            }
+            13 -> {
+                val bindingTag = bindingMonat.tag13
+                tagSetzen(bindingTag, t)
+            }
+            14 -> {
+                val bindingTag = bindingMonat.tag14
+                tagSetzen(bindingTag, t)
+            }
+            15 -> {
+                val bindingTag = bindingMonat.tag15
+                tagSetzen(bindingTag, t)
+            }
+            16 -> {
+                val bindingTag = bindingMonat.tag16
+                tagSetzen(bindingTag, t)
+            }
+            17 -> {
+                val bindingTag = bindingMonat.tag17
+                tagSetzen(bindingTag, t)
+            }
+            18 -> {
+                val bindingTag = bindingMonat.tag18
+                tagSetzen(bindingTag, t)
+            }
+            19 -> {
+                val bindingTag = bindingMonat.tag19
+                tagSetzen(bindingTag, t)
+            }
+            20 -> {
+                val bindingTag = bindingMonat.tag20
+                tagSetzen(bindingTag, t)
+            }
+            21 -> {
+                val bindingTag = bindingMonat.tag21
+                tagSetzen(bindingTag, t)
+            }
+            22 -> {
+                val bindingTag = bindingMonat.tag22
+                tagSetzen(bindingTag, t)
+            }
+            23 -> {
+                val bindingTag = bindingMonat.tag23
+                tagSetzen(bindingTag, t)
+            }
+            24 -> {
+                val bindingTag = bindingMonat.tag24
+                tagSetzen(bindingTag, t)
+            }
+            25 -> {
+                val bindingTag = bindingMonat.tag25
+                tagSetzen(bindingTag, t)
+            }
+            26 -> {
+                val bindingTag = bindingMonat.tag26
+                tagSetzen(bindingTag, t)
+            }
+            27 -> {
+                val bindingTag = bindingMonat.tag27
+                tagSetzen(bindingTag, t)
+            }
+            28 -> {
+                val bindingTag = bindingMonat.tag28
+                tagSetzen(bindingTag, t)
+            }
+            29 -> {
+                val bindingTag = bindingMonat.tag29
+                tagSetzen(bindingTag, t)
+            }
+            30 -> {
+                val bindingTag = bindingMonat.tag30
+                tagSetzen(bindingTag, t)
+            }
+            31 -> {
+                val bindingTag = bindingMonat.tag31
+                tagSetzen(bindingTag, t)
+            }
+        }
+    }
+
+    private fun tagSetzen(binding: TagBinding, t: KalenderEintrag) {
+        if (binding.txt1.text.isNullOrEmpty()) {
+            binding.txt1.text = t.name
+            when (t.status) {
+                Cons.BLOCKUNG -> binding.txt1.setBackgroundResource(R.drawable.blockung)
+                Cons.BUCHUNG -> binding.txt1.setBackgroundResource(R.drawable.buchung)
+                Cons.SONSTIGES -> binding.txt1.setBackgroundResource(R.drawable.sonstiges)
+            }
+        } else if (binding.txt2.text.isNullOrEmpty()) {
+            binding.txt2.visibility = View.VISIBLE
+            binding.txt2.text = t.name
+            when (t.status) {
+                Cons.BLOCKUNG -> binding.txt2.setBackgroundResource(R.drawable.blockung)
+                Cons.BUCHUNG -> binding.txt2.setBackgroundResource(R.drawable.buchung)
+                Cons.SONSTIGES -> binding.txt2.setBackgroundResource(R.drawable.sonstiges)
+            }
+        } else {
+            binding.txt3.visibility = View.VISIBLE
+            binding.txt3.text = t.name
+            when (t.status) {
+                Cons.BLOCKUNG -> binding.txt3.setBackgroundResource(R.drawable.blockung)
+                Cons.BUCHUNG -> binding.txt3.setBackgroundResource(R.drawable.buchung)
+                Cons.SONSTIGES -> binding.txt3.setBackgroundResource(R.drawable.sonstiges)
             }
         }
     }
@@ -2264,6 +442,12 @@ class MainActivity : FragmentActivity() {
         binding.monat2.tag27.txtTag.text = "27"
         binding.monat2.tag28.txtTag.text = "28"
         binding.monat2.tag29.txtTag.text = "29"
+        val cal = GregorianCalendar()
+        if (cal.isLeapYear(jahr)) {
+            binding.monat2.tag29.txtTag.visibility = View.VISIBLE
+        } else {
+            binding.monat2.tag29.txtTag.visibility = View.INVISIBLE
+        }
         binding.monat2.tag30.txtTag.visibility = View.INVISIBLE
         binding.monat2.tag30.txt1.visibility = View.INVISIBLE
         binding.monat2.tag30.txt2.visibility = View.INVISIBLE

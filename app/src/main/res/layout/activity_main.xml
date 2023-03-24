@@ -7,19 +7,47 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    android:padding="8dp"
+    android:paddingBottom="8dp"
     tools:context=".MainActivity"
     tools:deviceIds="tv"
     tools:ignore="MergeRootFrame">
+
+    <TextView
+        android:id="@+id/txtYear"
+        style="@style/TextView_Big"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnLeft"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/button_pfeil_links"
+        app:layout_constraintBottom_toBottomOf="@+id/txtYear"
+        app:layout_constraintEnd_toStartOf="@+id/h5"
+        app:layout_constraintStart_toStartOf="@+id/h4"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnRight"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/button_pfeil_rechts"
+        app:layout_constraintBottom_toBottomOf="@+id/txtYear"
+        app:layout_constraintEnd_toStartOf="@+id/h8"
+        app:layout_constraintStart_toStartOf="@+id/h7"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <include
         android:id="@+id/titel"
         layout="@layout/titel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/txtYear" />
 
     <include
         android:id="@+id/monat1"
@@ -145,18 +173,20 @@
         android:id="@+id/rahmen_links"
         android:layout_width="0.5dp"
         android:layout_height="0dp"
+        android:layout_marginStart="8dp"
         android:background="@color/rahmen"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/monat1"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/monat1" />
 
     <View
         android:id="@+id/rahmen_rechts"
         android:layout_width="0.5dp"
         android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
         android:background="@color/rahmen"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/monat1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/monat1" />
 
     <androidx.constraintlayout.widget.Guideline
