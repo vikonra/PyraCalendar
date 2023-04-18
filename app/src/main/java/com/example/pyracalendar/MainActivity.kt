@@ -5,7 +5,9 @@ import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import com.example.pyracalendar.database.Veranstaltung
@@ -19,6 +21,8 @@ import com.google.firebase.database.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.GregorianCalendar
+import kotlin.math.min
+
 
 class MainActivity : FragmentActivity() {
 
@@ -354,6 +358,7 @@ class MainActivity : FragmentActivity() {
 
     private fun tagSetzen(binding: TagBinding, t: KalenderEintrag) {
         if (binding.txt1.text.isNullOrEmpty()) {
+            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
             binding.txt1.text = t.name
             when (t.status) {
                 Cons.BLOCKUNG -> binding.txt1.setBackgroundResource(R.drawable.blockung)
@@ -362,6 +367,8 @@ class MainActivity : FragmentActivity() {
             }
         } else if (binding.txt2.text.isNullOrEmpty()) {
             binding.txt2.visibility = View.VISIBLE
+            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
             binding.txt2.text = t.name
             when (t.status) {
                 Cons.BLOCKUNG -> binding.txt2.setBackgroundResource(R.drawable.blockung)
@@ -371,6 +378,9 @@ class MainActivity : FragmentActivity() {
         } else {
             binding.txt3.visibility = View.VISIBLE
             binding.txt3.text = t.name
+            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+            binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
             when (t.status) {
                 Cons.BLOCKUNG -> binding.txt3.setBackgroundResource(R.drawable.blockung)
                 Cons.BUCHUNG -> binding.txt3.setBackgroundResource(R.drawable.buchung)

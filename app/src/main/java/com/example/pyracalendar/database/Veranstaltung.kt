@@ -13,7 +13,7 @@ data class Veranstaltung(
     val raum: String? = null,
     val raumTV: String? = null,
     val raumAV: String? = null,
-    val erstellDatum: String? = null,
+    val erstellDatum: Long? = null,
     val blockDatum: String? = null,
     val mehrtaegig: Boolean? = null,
     val aufbautage: Boolean? = null,
