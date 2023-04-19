@@ -19,6 +19,7 @@
         android:id="@+id/txt1"
         style="@style/TextView_KalenderEintrag"
         android:layout_marginStart="3dp"
+        android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@+id/txt2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/txtTag"
@@ -28,6 +29,7 @@
     <TextView
         android:id="@+id/txt2"
         style="@style/TextView_KalenderEintrag"
+        android:singleLine="true"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/txt3"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,8 +39,9 @@
 
     <TextView
         android:id="@+id/txt3"
-        android:visibility="gone"
         style="@style/TextView_KalenderEintrag"
+        android:singleLine="true"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/txt1"
