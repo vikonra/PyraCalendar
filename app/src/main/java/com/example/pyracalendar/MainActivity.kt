@@ -97,7 +97,7 @@ class MainActivity : FragmentActivity() {
                 Log.w(ContentValues.TAG, "loadPost:onCancelled", databaseError.toException())
             }
         }
-        databaseVeranstaltung.orderByChild("sortierung")
+        databaseVeranstaltung.orderByChild("erstellDatum")
             .addValueEventListener(veranstaltungListener)
     }
 
