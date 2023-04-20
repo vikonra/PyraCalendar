@@ -184,7 +184,7 @@ class MainActivity : FragmentActivity() {
             raum = "C"
             if (r.contains(Cons.B800)) {
                 raum += ", B"
-                if (raum.contains(Cons.P250)) {
+                if (r.contains(Cons.P250)) {
                     raum += ", P"
                 }
             } else if (r.contains(Cons.P250)) {
