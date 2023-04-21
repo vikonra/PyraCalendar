@@ -2,17 +2,18 @@ package com.example.pyracalendar
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
-import android.content.ContentValues.TAG
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import android.view.Window
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.FragmentActivity
+import androidx.core.content.ContextCompat
 import com.example.pyracalendar.database.Veranstaltung
-import com.example.pyracalendar.databinding.ActivityMainBinding
+import com.example.pyracalendar.databinding.ActivityMainTabletBinding
 import com.example.pyracalendar.databinding.MonatBinding
 import com.example.pyracalendar.databinding.TagBinding
 import com.firebase.ui.auth.AuthUI
@@ -23,22 +24,22 @@ import java.time.DateTimeException
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.GregorianCalendar
+import java.util.*
+import kotlin.collections.ArrayList
 
-
-class MainActivity : FragmentActivity() {
-
+class MainActivityTablet : AppCompatActivity() {
     private var user: FirebaseUser? = null
     private var mAuth: FirebaseAuth? = null
     private lateinit var database: DatabaseReference
 
     private var jahr: Int = 0
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainTabletBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+        binding = ActivityMainTabletBinding.inflate(layoutInflater)
         setContentView(binding.root)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
@@ -206,7 +207,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun updateUI(kalenderListe: ArrayList<KalenderEintrag>) {
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainTabletBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnRight.setOnClickListener {
             jahr++
@@ -404,7 +405,7 @@ class MainActivity : FragmentActivity() {
 
     private fun tagSetzen(binding: TagBinding, t: KalenderEintrag) {
         if (binding.txt1.text.isNullOrEmpty()) {
-            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f)
             binding.txt1.text = t.name
             when (t.status) {
                 Cons.BLOCKUNG -> binding.txt1.setBackgroundResource(R.drawable.blockung)
@@ -413,8 +414,8 @@ class MainActivity : FragmentActivity() {
             }
         } else if (binding.txt2.text.isNullOrEmpty()) {
             binding.txt2.visibility = View.VISIBLE
-            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
-            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
             binding.txt2.text = t.name
             when (t.status) {
                 Cons.BLOCKUNG -> binding.txt2.setBackgroundResource(R.drawable.blockung)
@@ -424,9 +425,9 @@ class MainActivity : FragmentActivity() {
         } else {
             binding.txt3.visibility = View.VISIBLE
             binding.txt3.text = t.name
-            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
-            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
-            binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+            binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
             when (t.status) {
                 Cons.BLOCKUNG -> binding.txt3.setBackgroundResource(R.drawable.blockung)
                 Cons.BUCHUNG -> binding.txt3.setBackgroundResource(R.drawable.buchung)
@@ -529,12 +530,12 @@ class MainActivity : FragmentActivity() {
             ) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithEmail:success")
+                    Log.d(ContentValues.TAG, "signInWithEmail:success")
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithEmail:failure", task.exception)
+                    Log.w(ContentValues.TAG, "signInWithEmail:failure", task.exception)
                     Toast.makeText(
-                        this@MainActivity, "Authentication failed.",
+                        this@MainActivityTablet, "Authentication failed.",
                         Toast.LENGTH_SHORT
                     ).show()
                 }

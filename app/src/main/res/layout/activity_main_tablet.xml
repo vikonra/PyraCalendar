@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_browse_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
+    android:paddingBottom="8dp"
+    tools:context=".MainActivity"
+    tools:deviceIds="tv"
+    tools:ignore="MergeRootFrame">
+
+    <TextView
+        android:id="@+id/txtYear"
+        style="@style/TextView_Big"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnLeft"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/button_pfeil_links"
+        app:layout_constraintBottom_toBottomOf="@+id/txtYear"
+        app:layout_constraintEnd_toStartOf="@+id/h5"
+        app:layout_constraintStart_toStartOf="@+id/h4"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnRight"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/button_pfeil_rechts"
+        app:layout_constraintBottom_toBottomOf="@+id/txtYear"
+        app:layout_constraintEnd_toStartOf="@+id/h8"
+        app:layout_constraintStart_toStartOf="@+id/h7"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/titel"
+        layout="@layout/titel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtYear" />
+
+    <include
+        android:id="@+id/monat1"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/monat2"
+        app:layout_constraintStart_toEndOf="@id/rahmen_links"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat2"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/h2"
+        app:layout_constraintStart_toStartOf="@id/h1"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat3"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h3"
+        app:layout_constraintStart_toEndOf="@+id/monat2"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat4"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h4"
+        app:layout_constraintStart_toEndOf="@+id/monat3"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat5"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h5"
+        app:layout_constraintStart_toEndOf="@+id/monat4"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat6"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h6"
+        app:layout_constraintStart_toEndOf="@+id/monat5"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat7"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h7"
+        app:layout_constraintStart_toEndOf="@+id/monat6"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat8"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h8"
+        app:layout_constraintStart_toEndOf="@+id/monat7"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat9"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h9"
+        app:layout_constraintStart_toEndOf="@+id/monat8"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat10"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h10"
+        app:layout_constraintStart_toEndOf="@+id/monat9"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat11"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/h11"
+        app:layout_constraintStart_toEndOf="@+id/monat10"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <include
+        android:id="@+id/monat12"
+        layout="@layout/monat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/rahmen_rechts"
+        app:layout_constraintStart_toStartOf="@id/h11"
+        app:layout_constraintTop_toBottomOf="@id/titel" />
+
+    <View
+        android:id="@+id/rahmen_links"
+        android:layout_width="0.5dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/rahmen"
+        app:layout_constraintBottom_toBottomOf="@id/monat1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/monat1" />
+
+    <View
+        android:id="@+id/rahmen_rechts"
+        android:layout_width="0.5dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/rahmen"
+        app:layout_constraintBottom_toBottomOf="@id/monat1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/monat1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.0833" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1666" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3333" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4166" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5833" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.6666" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.75" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8333" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/h11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9166" />
+</androidx.constraintlayout.widget.ConstraintLayout>
