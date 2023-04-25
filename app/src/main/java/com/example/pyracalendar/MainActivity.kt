@@ -33,6 +33,11 @@ class MainActivity : FragmentActivity() {
     private lateinit var database: DatabaseReference
 
     private var jahr: Int = 0
+    private var month: Int = 0
+    private var monthOffset: Long = 0
+
+    private var monthList: ArrayList<LocalDate> = ArrayList()
+    private var monthListString: ArrayList<String> = ArrayList()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -47,10 +52,24 @@ class MainActivity : FragmentActivity() {
         }
 
         jahr = LocalDate.now().year
+        month = LocalDate.now().monthValue
 
         mAuth = FirebaseAuth.getInstance();
         checkCurrentUser()
         database = FirebaseDatabase.getInstance(Constants.DOMAIN).reference
+
+        monthList.add(LocalDate.now())
+        monthList.add(LocalDate.now().plusMonths(1))
+        monthList.add(LocalDate.now().plusMonths(2))
+        monthList.add(LocalDate.now().plusMonths(3))
+        monthList.add(LocalDate.now().plusMonths(4))
+        monthList.add(LocalDate.now().plusMonths(5))
+        monthList.add(LocalDate.now().plusMonths(6))
+        monthList.add(LocalDate.now().plusMonths(7))
+        monthList.add(LocalDate.now().plusMonths(8))
+        monthList.add(LocalDate.now().plusMonths(9))
+        monthList.add(LocalDate.now().plusMonths(10))
+        monthList.add(LocalDate.now().plusMonths(11))
 
         kalenderAbfragen()
     }
@@ -120,7 +139,7 @@ class MainActivity : FragmentActivity() {
                     for (i in 0..tage) {
                         val k = KalenderEintrag()
                         k.tag = date.plusDays(i.toLong()).dayOfMonth
-                        k.monat = date.plusDays(i.toLong()).monthValue
+                        k.monat = setMonth(date.plusDays(i.toLong()).monthValue)
                         k.jahr = date.plusDays(i.toLong()).year
                         if (va.status != Cons.SONSTIGES) {
                             //k.name = "(A) " + va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
@@ -142,7 +161,7 @@ class MainActivity : FragmentActivity() {
                     for (i in 0..tage) {
                         val k = KalenderEintrag()
                         k.tag = date.plusDays(i.toLong()).dayOfMonth
-                        k.monat = date.plusDays(i.toLong()).monthValue
+                        k.monat = setMonth(date.plusDays(i.toLong()).monthValue)
                         k.jahr = date.plusDays(i.toLong()).year
                         if (va.status != Cons.SONSTIGES) {
                             //k.name = "(A) " + va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
@@ -166,7 +185,7 @@ class MainActivity : FragmentActivity() {
             for (i in 0..tage) {
                 val k = KalenderEintrag()
                 k.tag = date.plusDays(i.toLong()).dayOfMonth
-                k.monat = date.plusDays(i.toLong()).monthValue
+                k.monat = setMonth(date.plusDays(i.toLong()).monthValue)
                 k.jahr = date.plusDays(i.toLong()).year
                 if (va.status != Cons.SONSTIGES) {
                     //k.name = va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
@@ -180,6 +199,17 @@ class MainActivity : FragmentActivity() {
             }
         }
         updateUI(kalenderListe)
+    }
+
+    private fun setMonth(monthValue: Int): Int {
+        val position: Int
+        val sum = monthValue - month
+        position = if (sum >= 0) {
+            sum + 1
+        } else {
+            13 - sum
+        }
+        return position
     }
 
     private fun raumsetzen(r: String): String {
@@ -205,19 +235,81 @@ class MainActivity : FragmentActivity() {
         return raum
     }
 
+    private fun setMonthStrings() {
+        monthList.clear()
+        monthList.add(LocalDate.now().plusMonths(monthOffset))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 1))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 2))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 3))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 4))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 5))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 6))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 7))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 8))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 9))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 10))
+        monthList.add(LocalDate.now().plusMonths(monthOffset + 11))
+
+        monthListString.clear()
+        for (i in 0..11) {
+            when (monthList[i].monthValue) {
+                1 -> monthListString.add("Jan")
+                2 -> monthListString.add("Feb")
+                3 -> monthListString.add("Mär")
+                4 -> monthListString.add("Apr")
+                5 -> monthListString.add("Mai")
+                6 -> monthListString.add("Jun")
+                7 -> monthListString.add("Jul")
+                8 -> monthListString.add("Aug")
+                9 -> monthListString.add("Sep")
+                10 -> monthListString.add("Okt")
+                11 -> monthListString.add("Nov")
+                12 -> monthListString.add("Dez")
+            }
+        }
+        binding.titel.txtMonat1.text = monthListString[0]
+        binding.titel.txtMonat2.text = monthListString[1]
+        binding.titel.txtMonat3.text = monthListString[2]
+        binding.titel.txtMonat4.text = monthListString[3]
+        binding.titel.txtMonat5.text = monthListString[4]
+        binding.titel.txtMonat6.text = monthListString[5]
+        binding.titel.txtMonat7.text = monthListString[6]
+        binding.titel.txtMonat8.text = monthListString[7]
+        binding.titel.txtMonat9.text = monthListString[8]
+        binding.titel.txtMonat10.text = monthListString[9]
+        binding.titel.txtMonat11.text = monthListString[10]
+        binding.titel.txtMonat12.text = monthListString[11]
+    }
+
+
+    @SuppressLint("SetTextI18n")
     private fun updateUI(kalenderListe: ArrayList<KalenderEintrag>) {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnRight.setOnClickListener {
-            jahr++
+            monthOffset++
+            if (month != 12) {
+                month++
+            } else {
+                month = 1
+                jahr++
+            }
             kalenderAbfragen()
         }
         binding.btnLeft.setOnClickListener {
-            jahr--
+            monthOffset--
+            if (month != 1) {
+                month--
+            } else {
+                month = 12
+                jahr--
+            }
+
             kalenderAbfragen()
         }
         setTagNummern()
-        binding.txtYear.text = jahr.toString()
+        setMonthStrings()
+        binding.txtYear.text = "$month/$jahr"
 
         for (t in kalenderListe) {
             when (t.monat) {
@@ -438,29 +530,29 @@ class MainActivity : FragmentActivity() {
     @SuppressLint("SetTextI18n")
     private fun setTagNummern() {
         var binding = this.binding.monat1
-        setTagNummerMonat(binding, 1)
+        setTagNummerMonat(binding, setMonthLayout(1))
         binding = this.binding.monat2
-        setTagNummerMonat(binding, 2)
+        setTagNummerMonat(binding, setMonthLayout(2))
         binding = this.binding.monat3
-        setTagNummerMonat(binding, 3)
+        setTagNummerMonat(binding, setMonthLayout(3))
         binding = this.binding.monat4
-        setTagNummerMonat(binding, 4)
+        setTagNummerMonat(binding, setMonthLayout(4))
         binding = this.binding.monat5
-        setTagNummerMonat(binding, 5)
+        setTagNummerMonat(binding, setMonthLayout(5))
         binding = this.binding.monat6
-        setTagNummerMonat(binding, 6)
+        setTagNummerMonat(binding, setMonthLayout(6))
         binding = this.binding.monat7
-        setTagNummerMonat(binding, 7)
+        setTagNummerMonat(binding, setMonthLayout(7))
         binding = this.binding.monat8
-        setTagNummerMonat(binding, 8)
+        setTagNummerMonat(binding, setMonthLayout(8))
         binding = this.binding.monat9
-        setTagNummerMonat(binding, 9)
+        setTagNummerMonat(binding, setMonthLayout(9))
         binding = this.binding.monat10
-        setTagNummerMonat(binding, 10)
+        setTagNummerMonat(binding, setMonthLayout(10))
         binding = this.binding.monat11
-        setTagNummerMonat(binding, 11)
+        setTagNummerMonat(binding, setMonthLayout(11))
         binding = this.binding.monat12
-        setTagNummerMonat(binding, 12)
+        setTagNummerMonat(binding, setMonthLayout(12))
 
         val cal = GregorianCalendar()
         if (cal.isLeapYear(jahr)) {
@@ -490,6 +582,17 @@ class MainActivity : FragmentActivity() {
         this.binding.monat11.tag31.txtTag.visibility = View.INVISIBLE
         this.binding.monat11.tag31.txt1.visibility = View.INVISIBLE
         this.binding.monat11.tag31.txt2.visibility = View.INVISIBLE
+    }
+
+    private fun setMonthLayout(position: Int): Int {
+        //val position: Int
+        val month = position + month - 1
+        return if (month > 12) {
+            month - 12
+        } else {
+            month
+        }
+
     }
 
     @SuppressLint("SetTextI18n")
