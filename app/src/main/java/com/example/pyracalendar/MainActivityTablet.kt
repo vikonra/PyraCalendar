@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.pyracalendar.database.Veranstaltung
+import com.example.pyracalendar.databinding.ActivityMainBinding
 import com.example.pyracalendar.databinding.ActivityMainTabletBinding
 import com.example.pyracalendar.databinding.MonatBinding
 import com.example.pyracalendar.databinding.TagBinding
@@ -28,11 +29,19 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivityTablet : AppCompatActivity() {
+
     private var user: FirebaseUser? = null
     private var mAuth: FirebaseAuth? = null
     private lateinit var database: DatabaseReference
 
     private var jahr: Int = 0
+    private var month: Int = 0
+    private var monthOffset: Int = 0
+    private lateinit var startDate: LocalDate
+    private lateinit var endDate: LocalDate
+
+    private var monthList: ArrayList<LocalDate> = ArrayList()
+    private var monthListString: ArrayList<String> = ArrayList()
 
     private lateinit var binding: ActivityMainTabletBinding
 
@@ -48,6 +57,7 @@ class MainActivityTablet : AppCompatActivity() {
         }
 
         jahr = LocalDate.now().year
+        month = LocalDate.now().monthValue
 
         mAuth = FirebaseAuth.getInstance();
         checkCurrentUser()
@@ -70,14 +80,13 @@ class MainActivityTablet : AppCompatActivity() {
     }
 
     class KalenderEintrag {
-        var tag: Int = 0
-        var monat: Int = 0
-        var jahr: Int = 0
+        var datum: LocalDate = LocalDate.now()
         var name: String = ""
         var status: String = ""
     }
 
     private fun kalenderAbfragen() {
+        updateMonthList()
         val databaseVeranstaltung: DatabaseReference =
             FirebaseDatabase.getInstance(Constants.DOMAIN).getReference("Veranstaltung")
         val veranstaltungListener = object : ValueEventListener {
@@ -90,7 +99,13 @@ class MainActivityTablet : AppCompatActivity() {
                         veranstaltungSnapshot.getValue(Veranstaltung::class.java)
                     if (veranstaltung != null) {
                         if (veranstaltung.datumBeginn != null) {
-                            if (veranstaltung.datumBeginn.substring(6, 10).toInt() == jahr) {
+                            if (veranstaltung.datumBeginn.substring(6, 10)
+                                    .toInt() == monthList[0].year || veranstaltung.datumBeginn.substring(
+                                    6,
+                                    10
+                                )
+                                    .toInt() == monthList[11].year
+                            ) {
                                 vaList.add(veranstaltung)
                             }
                         }
@@ -120,37 +135,39 @@ class MainActivityTablet : AppCompatActivity() {
                         LocalDate.parse(va.aufbauBeginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                     for (i in 0..tage) {
                         val k = KalenderEintrag()
-                        k.tag = date.plusDays(i.toLong()).dayOfMonth
-                        k.monat = date.plusDays(i.toLong()).monthValue
-                        k.jahr = date.plusDays(i.toLong()).year
-                        if (va.status != Cons.SONSTIGES) {
-                            //k.name = "(A) " + va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
-                            k.name =
-                                "(A) " + va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
-                        } else {
-                            //k.name = "(A) " + va.kunde.toString() //Alternative ausgeschriebene Räume
-                            k.name = "(A) " + va.kunde.toString()
+                        k.datum = date.plusDays(i.toLong())
+                        if ((k.datum.isAfter(startDate) || k.datum.isEqual(startDate)) && (k.datum.isBefore(
+                                endDate
+                            ) || k.datum.isEqual(endDate))
+                        ) {
+                            if (va.status != Cons.SONSTIGES) {
+                                k.name =
+                                    "(A) " + va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
+                            } else {
+                                k.name = "(A) " + va.kunde.toString()
+                            }
+                            k.status = va.status.toString()
+                            kalenderListe.add(k)
                         }
-                        k.status = va.status.toString()
-                        kalenderListe.add(k)
                     }
                 }
-                if (!va.abbauEnde.isNullOrEmpty()) {
-                    val tage: Int = (inTagen(va.abbauEnde) - inTagen(va.datumEnde)) - 1
-                    val date =
-                        LocalDate.parse(va.datumEnde, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                            .plusDays(1)
-                    for (i in 0..tage) {
-                        val k = KalenderEintrag()
-                        k.tag = date.plusDays(i.toLong()).dayOfMonth
-                        k.monat = date.plusDays(i.toLong()).monthValue
-                        k.jahr = date.plusDays(i.toLong()).year
+            }
+            if (!va.abbauEnde.isNullOrEmpty()) {
+                val tage: Int = (inTagen(va.abbauEnde) - inTagen(va.datumEnde)) - 1
+                val date =
+                    LocalDate.parse(va.datumEnde, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        .plusDays(1)
+                for (i in 0..tage) {
+                    val k = KalenderEintrag()
+                    k.datum = date.plusDays(i.toLong())
+                    if ((k.datum.isAfter(startDate) || k.datum.isEqual(startDate)) && (k.datum.isBefore(
+                            endDate
+                        ) || k.datum.isEqual(endDate))
+                    ) {
                         if (va.status != Cons.SONSTIGES) {
-                            //k.name = "(A) " + va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
                             k.name =
                                 "(A) " + va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
                         } else {
-                            //k.name = "(A) " + va.kunde.toString() //Alternative ausgeschriebene Räume
                             k.name =
                                 "(A) " + va.kunde.toString()
                         }
@@ -160,27 +177,43 @@ class MainActivityTablet : AppCompatActivity() {
                 }
             }
 
+
             //Veranstaltungstage hinzufügen
             val tage: Int = (inTagen(va.datumEnde) - inTagen(va.datumBeginn))
             val date =
                 LocalDate.parse(va.datumBeginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
             for (i in 0..tage) {
                 val k = KalenderEintrag()
-                k.tag = date.plusDays(i.toLong()).dayOfMonth
-                k.monat = date.plusDays(i.toLong()).monthValue
-                k.jahr = date.plusDays(i.toLong()).year
-                if (va.status != Cons.SONSTIGES) {
-                    //k.name = va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
-                    k.name = va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
-                } else {
-                    //k.name = va.kunde.toString() //Alternative ausgeschriebene Räume
-                    k.name = va.kunde.toString()
+                k.datum = date.plusDays(i.toLong())
+                if ((k.datum.isAfter(startDate) || k.datum.isEqual(startDate)) && (k.datum.isBefore(
+                        endDate
+                    ) || k.datum.isEqual(endDate))
+                ) {
+                    if (va.status != Cons.SONSTIGES) {
+                        k.name = va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
+                    } else {
+                        k.name = va.kunde.toString()
+                    }
+                    k.status = va.status.toString()
+                    kalenderListe.add(k)
                 }
-                k.status = va.status.toString()
-                kalenderListe.add(k)
             }
         }
         updateUI(kalenderListe)
+    }
+
+    private fun setMonth(localDate: LocalDate): LocalDate {
+        var currentDate = localDate
+        val position: Int
+        val sum = currentDate.monthValue - month
+        position = if (sum >= 0) {
+            sum + 1
+        } else {
+            13 + sum
+        }
+        currentDate = currentDate.withMonth(position)
+        return currentDate
     }
 
     private fun raumsetzen(r: String): String {
@@ -206,22 +239,24 @@ class MainActivityTablet : AppCompatActivity() {
         return raum
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateUI(kalenderListe: ArrayList<KalenderEintrag>) {
         binding = ActivityMainTabletBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnRight.setOnClickListener {
-            jahr++
+            monthOffset++
             kalenderAbfragen()
         }
         binding.btnLeft.setOnClickListener {
-            jahr--
+            monthOffset--
             kalenderAbfragen()
         }
         setTagNummern()
-        binding.txtYear.text = jahr.toString()
+        binding.txtYear.text = monthListString[0] + "  " + monthList[0].year.toString()
 
         for (t in kalenderListe) {
-            when (t.monat) {
+
+            when (dateTransform(t.datum)) {
                 1 -> {
                     val binding = binding.monat1
                     monatSetzen(binding, t)
@@ -274,8 +309,34 @@ class MainActivityTablet : AppCompatActivity() {
         }
     }
 
+    private fun dateTransform(date: LocalDate): Int {
+        var currentDate = date
+        var position: Int
+        val sum = currentDate.monthValue - LocalDate.now().monthValue
+        position = if (sum >= 0) {
+            sum + 1
+        } else {
+            13 + sum
+        }
+        position = if (monthOffset > 0) {
+            if (position - monthOffset > 0) {
+                position - monthOffset
+            } else {
+                12 + position - monthOffset
+            }
+        } else {
+            if (position - monthOffset < 13) {
+                position - monthOffset
+            } else {
+                position - monthOffset - 12
+            }
+        }
+        currentDate = currentDate.withMonth(position)
+        return currentDate.monthValue
+    }
+
     private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag) {
-        when (t.tag) {
+        when (t.datum.dayOfMonth) {
             1 -> {
                 val bindingTag = bindingMonat.tag1
                 tagSetzen(bindingTag, t)
@@ -405,7 +466,7 @@ class MainActivityTablet : AppCompatActivity() {
 
     private fun tagSetzen(binding: TagBinding, t: KalenderEintrag) {
         if (binding.txt1.text.isNullOrEmpty()) {
-            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f)
+            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f)
             binding.txt1.text = t.name
             when (t.status) {
                 Cons.BLOCKUNG -> binding.txt1.setBackgroundResource(R.drawable.blockung)
@@ -414,8 +475,8 @@ class MainActivityTablet : AppCompatActivity() {
             }
         } else if (binding.txt2.text.isNullOrEmpty()) {
             binding.txt2.visibility = View.VISIBLE
-            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
-            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 7f)
+            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 7f)
             binding.txt2.text = t.name
             when (t.status) {
                 Cons.BLOCKUNG -> binding.txt2.setBackgroundResource(R.drawable.blockung)
@@ -436,65 +497,82 @@ class MainActivityTablet : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun setTagNummern() {
-        var binding = this.binding.monat1
-        setTagNummerMonat(binding, 1)
-        binding = this.binding.monat2
-        setTagNummerMonat(binding, 2)
-        binding = this.binding.monat3
-        setTagNummerMonat(binding, 3)
-        binding = this.binding.monat4
-        setTagNummerMonat(binding, 4)
-        binding = this.binding.monat5
-        setTagNummerMonat(binding, 5)
-        binding = this.binding.monat6
-        setTagNummerMonat(binding, 6)
-        binding = this.binding.monat7
-        setTagNummerMonat(binding, 7)
-        binding = this.binding.monat8
-        setTagNummerMonat(binding, 8)
-        binding = this.binding.monat9
-        setTagNummerMonat(binding, 9)
-        binding = this.binding.monat10
-        setTagNummerMonat(binding, 10)
-        binding = this.binding.monat11
-        setTagNummerMonat(binding, 11)
-        binding = this.binding.monat12
-        setTagNummerMonat(binding, 12)
-
-        val cal = GregorianCalendar()
-        if (cal.isLeapYear(jahr)) {
-            this.binding.monat2.tag29.txtTag.visibility = View.VISIBLE
-        } else {
-            this.binding.monat2.tag29.txtTag.visibility = View.INVISIBLE
+    private fun updateMonthList() {
+        monthList.clear()
+        for (i in 0..11) {
+            monthList.add(
+                getDateWithMonthOffset(
+                    LocalDate.now(),
+                    monthOffset + i
+                ).withDayOfMonth(1)
+            )
         }
-        this.binding.monat2.tag30.txtTag.visibility = View.INVISIBLE
-        this.binding.monat2.tag30.txt1.visibility = View.INVISIBLE
-        this.binding.monat2.tag30.txt2.visibility = View.INVISIBLE
-        this.binding.monat2.tag31.txtTag.visibility = View.INVISIBLE
-        this.binding.monat2.tag31.txt1.visibility = View.INVISIBLE
-        this.binding.monat2.tag31.txt2.visibility = View.INVISIBLE
-
-        this.binding.monat4.tag31.txtTag.visibility = View.INVISIBLE
-        this.binding.monat4.tag31.txt1.visibility = View.INVISIBLE
-        this.binding.monat4.tag31.txt2.visibility = View.INVISIBLE
-
-        this.binding.monat6.tag31.txtTag.visibility = View.INVISIBLE
-        this.binding.monat6.tag31.txt1.visibility = View.INVISIBLE
-        this.binding.monat6.tag31.txt2.visibility = View.INVISIBLE
-
-        this.binding.monat9.tag31.txtTag.visibility = View.INVISIBLE
-        this.binding.monat9.tag31.txt1.visibility = View.INVISIBLE
-        this.binding.monat9.tag31.txt2.visibility = View.INVISIBLE
-
-        this.binding.monat11.tag31.txtTag.visibility = View.INVISIBLE
-        this.binding.monat11.tag31.txt1.visibility = View.INVISIBLE
-        this.binding.monat11.tag31.txt2.visibility = View.INVISIBLE
+        startDate = monthList[0]
+        endDate = monthList[11].withDayOfMonth(monthList[11].month.length(monthList[11].isLeapYear))
+        val test = endDate
+        test.monthValue
     }
 
     @SuppressLint("SetTextI18n")
-    private fun setTagNummerMonat(binding: MonatBinding, monat: Int) {
+    private fun setTagNummern() {
+        monthListString.clear()
+        for (i in 0..11) {
+            when (monthList[i].monthValue) {
+                1 -> monthListString.add("Jan")
+                2 -> monthListString.add("Feb")
+                3 -> monthListString.add("Mär")
+                4 -> monthListString.add("Apr")
+                5 -> monthListString.add("Mai")
+                6 -> monthListString.add("Jun")
+                7 -> monthListString.add("Jul")
+                8 -> monthListString.add("Aug")
+                9 -> monthListString.add("Sep")
+                10 -> monthListString.add("Okt")
+                11 -> monthListString.add("Nov")
+                12 -> monthListString.add("Dez")
+            }
+        }
+        binding.titel.txtMonat1.text = monthListString[0]
+        binding.titel.txtMonat2.text = monthListString[1]
+        binding.titel.txtMonat3.text = monthListString[2]
+        binding.titel.txtMonat4.text = monthListString[3]
+        binding.titel.txtMonat5.text = monthListString[4]
+        binding.titel.txtMonat6.text = monthListString[5]
+        binding.titel.txtMonat7.text = monthListString[6]
+        binding.titel.txtMonat8.text = monthListString[7]
+        binding.titel.txtMonat9.text = monthListString[8]
+        binding.titel.txtMonat10.text = monthListString[9]
+        binding.titel.txtMonat11.text = monthListString[10]
+        binding.titel.txtMonat12.text = monthListString[11]
+
+        var binding = this.binding.monat1
+        setTagNummerMonat(binding, monthList[0].year, monthList[0].monthValue)
+        binding = this.binding.monat2
+        setTagNummerMonat(binding, monthList[1].year, monthList[1].monthValue)
+        binding = this.binding.monat3
+        setTagNummerMonat(binding, monthList[2].year, monthList[2].monthValue)
+        binding = this.binding.monat4
+        setTagNummerMonat(binding, monthList[3].year, monthList[3].monthValue)
+        binding = this.binding.monat5
+        setTagNummerMonat(binding, monthList[4].year, monthList[4].monthValue)
+        binding = this.binding.monat6
+        setTagNummerMonat(binding, monthList[5].year, monthList[5].monthValue)
+        binding = this.binding.monat7
+        setTagNummerMonat(binding, monthList[6].year, monthList[6].monthValue)
+        binding = this.binding.monat8
+        setTagNummerMonat(binding, monthList[7].year, monthList[7].monthValue)
+        binding = this.binding.monat9
+        setTagNummerMonat(binding, monthList[8].year, monthList[8].monthValue)
+        binding = this.binding.monat10
+        setTagNummerMonat(binding, monthList[9].year, monthList[9].monthValue)
+        binding = this.binding.monat11
+        setTagNummerMonat(binding, monthList[10].year, monthList[10].monthValue)
+        binding = this.binding.monat12
+        setTagNummerMonat(binding, monthList[11].year, monthList[11].monthValue)
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setTagNummerMonat(binding: MonatBinding, jahr: Int, monat: Int) {
         for (i in 0 until binding.root.childCount) {
             val tagLayout = binding.root.getChildAt(i) as ConstraintLayout
             val tagTextView = tagLayout.getChildAt(0) as TextView
@@ -504,14 +582,50 @@ class MainActivityTablet : AppCompatActivity() {
                 if (isWeekend(datum)) {
                     tagLayout.setBackgroundResource(R.drawable.tag_wochenende)
                 }
-            } catch (e: DateTimeException) {
+            } catch (_: DateTimeException) {
 
             }
+        }
+        if (monat == 4 || monat == 6 || monat == 9 || monat == 11) {
+            binding.tag31.txtTag.visibility = View.INVISIBLE
+            binding.tag31.txt1.visibility = View.INVISIBLE
+            binding.tag31.txt2.visibility = View.INVISIBLE
+        } else if (monat == 2) {
+            val cal = GregorianCalendar()
+            if (cal.isLeapYear(jahr)) {
+                binding.tag29.txtTag.visibility = View.VISIBLE
+            } else {
+                binding.tag29.txtTag.visibility = View.INVISIBLE
+            }
+            binding.tag30.txtTag.visibility = View.INVISIBLE
+            binding.tag30.txt1.visibility = View.INVISIBLE
+            binding.tag30.txt2.visibility = View.INVISIBLE
+            binding.tag31.txtTag.visibility = View.INVISIBLE
+            binding.tag31.txt1.visibility = View.INVISIBLE
+            binding.tag31.txt2.visibility = View.INVISIBLE
         }
     }
 
     fun isWeekend(date: LocalDate): Boolean {
         return date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
+    }
+
+    fun getDateWithMonthOffset(localDate: LocalDate, monthOffset: Int): LocalDate {
+        // Get the current date
+        var currentDate = localDate
+        val monthsum = monthOffset + currentDate.monthValue
+
+        if (monthsum < 1) { //minus Jahr
+            currentDate = currentDate.withYear(currentDate.year - 1)
+            currentDate = currentDate.withMonth(currentDate.monthValue + 12 + monthOffset)
+        } else if (monthsum <= 12) { //gleiches Jahr
+            currentDate = currentDate.withMonth(currentDate.monthValue + monthOffset)
+        } else { //plus Jahr
+            currentDate = currentDate.withYear(currentDate.year + 1)
+            currentDate = currentDate.withMonth(currentDate.monthValue + monthOffset - 12)
+        }
+
+        return currentDate
     }
 
     fun checkCurrentUser() {
@@ -541,13 +655,5 @@ class MainActivityTablet : AppCompatActivity() {
                 }
             }
         // [END sign_in_with_email]
-    }
-
-    private fun signOut() {
-        AuthUI.getInstance()
-            .signOut(this)
-            .addOnCompleteListener {
-                // ...
-            }
     }
 }

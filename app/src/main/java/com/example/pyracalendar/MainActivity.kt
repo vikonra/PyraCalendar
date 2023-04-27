@@ -653,12 +653,4 @@ class MainActivity : FragmentActivity() {
             }
         // [END sign_in_with_email]
     }
-
-    private fun signOut() {
-        AuthUI.getInstance()
-            .signOut(this)
-            .addOnCompleteListener {
-                // ...
-            }
-    }
 }
