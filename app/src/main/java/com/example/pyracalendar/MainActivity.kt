@@ -60,12 +60,6 @@ class MainActivity : FragmentActivity() {
         checkCurrentUser()
         database = FirebaseDatabase.getInstance(Constants.DOMAIN).reference
 
-        for (i in 0..11) {
-            monthList.add(LocalDate.now().plusMonths(i.toLong()).withDayOfMonth(1))
-        }
-        startDate = monthList[0]
-        endDate = monthList[11].withDayOfMonth(monthList[11].month.length(monthList[11].isLeapYear))
-
         kalenderAbfragen()
     }
 
@@ -89,6 +83,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun kalenderAbfragen() {
+        updateMonthList()
         val databaseVeranstaltung: DatabaseReference =
             FirebaseDatabase.getInstance(Constants.DOMAIN).getReference("Veranstaltung")
         val veranstaltungListener = object : ValueEventListener {
@@ -102,8 +97,11 @@ class MainActivity : FragmentActivity() {
                     if (veranstaltung != null) {
                         if (veranstaltung.datumBeginn != null) {
                             if (veranstaltung.datumBeginn.substring(6, 10)
-                                    .toInt() == jahr || veranstaltung.datumBeginn.substring(6, 10)
-                                    .toInt() == jahr + 1
+                                    .toInt() == monthList[0].year || veranstaltung.datumBeginn.substring(
+                                    6,
+                                    10
+                                )
+                                    .toInt() == monthList[11].year
                             ) {
                                 vaList.add(veranstaltung)
                             }
@@ -132,16 +130,17 @@ class MainActivity : FragmentActivity() {
                     val tage: Int = (inTagen(va.datumBeginn) - inTagen(va.aufbauBeginn)) - 1
                     val date =
                         LocalDate.parse(va.aufbauBeginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                    if (date.isAfter(startDate) && date.isBefore(endDate)) {
-                        for (i in 0..tage) {
-                            val k = KalenderEintrag()
-                            k.datum = setMonth(date.plusDays(i.toLong()))
+                    for (i in 0..tage) {
+                        val k = KalenderEintrag()
+                        k.datum = date.plusDays(i.toLong())
+                        if ((k.datum.isAfter(startDate) || k.datum.isEqual(startDate)) && (k.datum.isBefore(
+                                endDate
+                            ) || k.datum.isEqual(endDate))
+                        ) {
                             if (va.status != Cons.SONSTIGES) {
-                                //k.name = "(A) " + va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
                                 k.name =
                                     "(A) " + va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
                             } else {
-                                //k.name = "(A) " + va.kunde.toString() //Alternative ausgeschriebene Räume
                                 k.name = "(A) " + va.kunde.toString()
                             }
                             k.status = va.status.toString()
@@ -149,50 +148,54 @@ class MainActivity : FragmentActivity() {
                         }
                     }
                 }
-                if (!va.abbauEnde.isNullOrEmpty()) {
-                    val tage: Int = (inTagen(va.abbauEnde) - inTagen(va.datumEnde)) - 1
-                    val date =
-                        LocalDate.parse(va.datumEnde, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                            .plusDays(1)
-                    if (date.isAfter(startDate) && date.isBefore(endDate)) {
-                        for (i in 0..tage) {
-                            val k = KalenderEintrag()
-                            k.datum = setMonth(date.plusDays(i.toLong()))
-                            if (va.status != Cons.SONSTIGES) {
-                                //k.name = "(A) " + va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
-                                k.name =
-                                    "(A) " + va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
-                            } else {
-                                //k.name = "(A) " + va.kunde.toString() //Alternative ausgeschriebene Räume
-                                k.name =
-                                    "(A) " + va.kunde.toString()
-                            }
-                            k.status = va.status.toString()
-                            kalenderListe.add(k)
+            }
+            if (!va.abbauEnde.isNullOrEmpty()) {
+                val tage: Int = (inTagen(va.abbauEnde) - inTagen(va.datumEnde)) - 1
+                val date =
+                    LocalDate.parse(va.datumEnde, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        .plusDays(1)
+                for (i in 0..tage) {
+                    val k = KalenderEintrag()
+                    k.datum = date.plusDays(i.toLong())
+                    if ((k.datum.isAfter(startDate) || k.datum.isEqual(startDate)) && (k.datum.isBefore(
+                            endDate
+                        ) || k.datum.isEqual(endDate))
+                    ) {
+                        if (va.status != Cons.SONSTIGES) {
+                            k.name =
+                                "(A) " + va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
+                        } else {
+                            k.name =
+                                "(A) " + va.kunde.toString()
                         }
+                        k.status = va.status.toString()
+                        kalenderListe.add(k)
                     }
                 }
             }
+
 
             //Veranstaltungstage hinzufügen
             val tage: Int = (inTagen(va.datumEnde) - inTagen(va.datumBeginn))
             val date =
                 LocalDate.parse(va.datumBeginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-            if (date.isAfter(startDate) && date.isBefore(endDate)) {
-                for (i in 0..tage) {
-                    val k = KalenderEintrag()
-                    k.datum = setMonth(date.plusDays(i.toLong()))
+
+            for (i in 0..tage) {
+                val k = KalenderEintrag()
+                k.datum = date.plusDays(i.toLong())
+                if ((k.datum.isAfter(startDate) || k.datum.isEqual(startDate)) && (k.datum.isBefore(
+                        endDate
+                    ) || k.datum.isEqual(endDate))
+                ) {
                     if (va.status != Cons.SONSTIGES) {
-                        //k.name = va.kunde.toString() + " (" + va.raum + ")" //Alternative ausgeschriebene Räume
                         k.name = va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
                     } else {
-                        //k.name = va.kunde.toString() //Alternative ausgeschriebene Räume
                         k.name = va.kunde.toString()
                     }
                     k.status = va.status.toString()
                     kalenderListe.add(k)
                 }
-            }La
+            }
         }
         updateUI(kalenderListe)
     }
@@ -239,29 +242,18 @@ class MainActivity : FragmentActivity() {
         setContentView(binding.root)
         binding.btnRight.setOnClickListener {
             monthOffset++
-            if (month != 12) {
-                month++
-            } else {
-                month = 1
-                jahr++
-            }
             kalenderAbfragen()
         }
         binding.btnLeft.setOnClickListener {
             monthOffset--
-            if (month != 1) {
-                month--
-            } else {
-                month = 12
-                jahr--
-            }
             kalenderAbfragen()
         }
         setTagNummern()
-        binding.txtYear.text = monthListString[0] + "  " + jahr.toString()
+        binding.txtYear.text = monthListString[0] + "  " + monthList[0].year.toString()
 
         for (t in kalenderListe) {
-            when (t.datum.monthValue) {
+
+            when (dateTransform(t.datum)) {
                 1 -> {
                     val binding = binding.monat1
                     monatSetzen(binding, t)
@@ -312,6 +304,32 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
+    }
+
+    private fun dateTransform(date: LocalDate): Int {
+        var currentDate = date
+        var position: Int
+        val sum = currentDate.monthValue - LocalDate.now().monthValue
+        position = if (sum >= 0) {
+            sum + 1
+        } else {
+            13 + sum
+        }
+        position = if (monthOffset > 0) {
+            if (position - monthOffset > 0) {
+                position - monthOffset
+            } else {
+                12 + position - monthOffset
+            }
+        } else {
+            if (position - monthOffset < 13) {
+                position - monthOffset
+            } else {
+                position - monthOffset - 12
+            }
+        }
+        currentDate = currentDate.withMonth(position)
+        return currentDate.monthValue
     }
 
     private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag) {
@@ -476,8 +494,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun setTagNummern() {
+    private fun updateMonthList() {
         monthList.clear()
         for (i in 0..11) {
             monthList.add(
@@ -489,7 +506,12 @@ class MainActivity : FragmentActivity() {
         }
         startDate = monthList[0]
         endDate = monthList[11].withDayOfMonth(monthList[11].month.length(monthList[11].isLeapYear))
+        val test = endDate
+        test.monthValue
+    }
 
+    @SuppressLint("SetTextI18n")
+    private fun setTagNummern() {
         monthListString.clear()
         for (i in 0..11) {
             when (monthList[i].monthValue) {
