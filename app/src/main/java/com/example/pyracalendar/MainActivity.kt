@@ -233,6 +233,9 @@ class MainActivity : FragmentActivity() {
         } else {
             raum = "P"
         }
+        if (raum == "C, B, P") {
+            raum = "g. H."
+        }
         return raum
     }
 
