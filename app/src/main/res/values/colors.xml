@@ -19,6 +19,6 @@
     <color name="buchung_rand">#5C0000</color>
     <color name="sonstiges">#00A370</color>
     <color name="sonstiges_rand">#006746</color>
-    <color name="rahmen">#E6E6E6</color>
-    <color name="rahmen_wochenende">#F1F1F1</color>
+    <color name="rahmen">#C5C5C5</color>
+    <color name="rahmen_wochenende">#DDDDDD</color>
 </resources>
