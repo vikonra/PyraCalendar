@@ -1,5 +1,6 @@
 package com.example.pyracalendar
 
+import android.animation.AnimatorInflater
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
@@ -83,6 +84,7 @@ class MainActivityTablet : AppCompatActivity() {
         var datum: LocalDate = LocalDate.now()
         var name: String = ""
         var status: String = ""
+        var blockDatum: String = ""
     }
 
     private fun kalenderAbfragen() {
@@ -147,6 +149,7 @@ class MainActivityTablet : AppCompatActivity() {
                                 k.name = "(A) " + va.kunde.toString()
                             }
                             k.status = va.status.toString()
+                            k.blockDatum = va.blockDatum.toString()
                             kalenderListe.add(k)
                         }
                     }
@@ -172,6 +175,7 @@ class MainActivityTablet : AppCompatActivity() {
                                 "(A) " + va.kunde.toString()
                         }
                         k.status = va.status.toString()
+                        k.blockDatum = va.blockDatum.toString()
                         kalenderListe.add(k)
                     }
                 }
@@ -196,6 +200,7 @@ class MainActivityTablet : AppCompatActivity() {
                         k.name = va.kunde.toString()
                     }
                     k.status = va.status.toString()
+                    k.blockDatum = va.blockDatum.toString()
                     kalenderListe.add(k)
                 }
             }
@@ -472,7 +477,14 @@ class MainActivityTablet : AppCompatActivity() {
             binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f)
             binding.txt1.text = t.name
             when (t.status) {
-                Cons.BLOCKUNG -> binding.txt1.setBackgroundResource(R.drawable.blockung)
+                Cons.BLOCKUNG -> {
+                    binding.txt1.setBackgroundResource(R.drawable.blockung)
+                    if (t.blockDatum.isNotEmpty()){
+                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())){
+                            blinkTxt(binding.txt1)
+                        }
+                    }
+                }
                 Cons.BUCHUNG -> binding.txt1.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt1.setBackgroundResource(R.drawable.sonstiges)
             }
@@ -482,7 +494,14 @@ class MainActivityTablet : AppCompatActivity() {
             binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 7f)
             binding.txt2.text = t.name
             when (t.status) {
-                Cons.BLOCKUNG -> binding.txt2.setBackgroundResource(R.drawable.blockung)
+                Cons.BLOCKUNG -> {
+                    binding.txt2.setBackgroundResource(R.drawable.blockung)
+                    if (t.blockDatum.isNotEmpty()){
+                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())){
+                            blinkTxt(binding.txt2)
+                        }
+                    }
+                }
                 Cons.BUCHUNG -> binding.txt2.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt2.setBackgroundResource(R.drawable.sonstiges)
             }
@@ -493,11 +512,25 @@ class MainActivityTablet : AppCompatActivity() {
             binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
             binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
             when (t.status) {
-                Cons.BLOCKUNG -> binding.txt3.setBackgroundResource(R.drawable.blockung)
+                Cons.BLOCKUNG -> {
+                    binding.txt3.setBackgroundResource(R.drawable.blockung)
+                    if (t.blockDatum.isNotEmpty()){
+                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())){
+                            blinkTxt(binding.txt3)
+                        }
+                    }
+                }
                 Cons.BUCHUNG -> binding.txt3.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt3.setBackgroundResource(R.drawable.sonstiges)
             }
         }
+    }
+
+    @SuppressLint("ResourceType")
+    private fun blinkTxt(txt: TextView) {
+        val animation = AnimatorInflater.loadAnimator(this, R.anim.blink_animation)
+        animation.setTarget(txt)
+        animation.start()
     }
 
     private fun updateMonthList() {
@@ -607,6 +640,15 @@ class MainActivityTablet : AppCompatActivity() {
             binding.tag31.txt1.visibility = View.INVISIBLE
             binding.tag31.txt2.visibility = View.INVISIBLE
         }
+    }
+
+    fun stringToDate(datum: String?): LocalDate {
+        val localDate: LocalDate = LocalDate.of(
+            datum?.substring(6, 10)!!.toInt(),
+            datum?.substring(3, 5)!!.toInt(),
+            datum?.substring(0, 2)!!.toInt()
+        )
+        return localDate
     }
 
     fun isWeekend(date: LocalDate): Boolean {
