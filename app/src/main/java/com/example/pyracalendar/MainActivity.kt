@@ -349,7 +349,7 @@ class MainActivity : FragmentActivity() {
         return currentDate.monthValue
     }
 
-    private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag) {
+    private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag){
         when (t.datum.dayOfMonth) {
             1 -> {
                 val bindingTag = bindingMonat.tag1
@@ -482,7 +482,6 @@ class MainActivity : FragmentActivity() {
         if (binding.txt1.text.isNullOrEmpty()) {
             binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
             binding.txt1.text = t.name
-            blinkTxt(binding.txt1)
             when (t.status) {
                 Cons.BLOCKUNG -> {
                     binding.txt1.setBackgroundResource(R.drawable.blockung)
