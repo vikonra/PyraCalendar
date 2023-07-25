@@ -4,6 +4,7 @@ import android.animation.AnimatorInflater
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.ContentValues.TAG
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -16,7 +17,6 @@ import com.example.pyracalendar.database.Veranstaltung
 import com.example.pyracalendar.databinding.ActivityMainBinding
 import com.example.pyracalendar.databinding.MonatBinding
 import com.example.pyracalendar.databinding.TagBinding
-import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
@@ -478,57 +478,85 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    @SuppressLint("ResourceAsColor")
     private fun tagSetzen(binding: TagBinding, t: KalenderEintrag) {
+        urlaubColor(binding, t.status)
         if (binding.txt1.text.isNullOrEmpty()) {
-            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
-            binding.txt1.text = t.name
+            if (t.status != Cons.URLAUB) {
+                binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+                binding.txt1.text = t.name
+            }
             when (t.status) {
                 Cons.BLOCKUNG -> {
                     binding.txt1.setBackgroundResource(R.drawable.blockung)
-                    if (t.blockDatum.isNotEmpty()){
-                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())){
+                    if (t.blockDatum.isNotEmpty()) {
+                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())) {
                             blinkTxt(binding.txt1)
                         }
                     }
                 }
                 Cons.BUCHUNG -> binding.txt1.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt1.setBackgroundResource(R.drawable.sonstiges)
+                Cons.URLAUB -> binding.txtUrlaub.text =
+                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
             }
         } else if (binding.txt2.text.isNullOrEmpty()) {
-            binding.txt2.visibility = View.VISIBLE
-            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
-            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
-            binding.txt2.text = t.name
+            if (t.status != Cons.URLAUB) {
+                binding.txt2.visibility = View.VISIBLE
+                binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+                binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+                binding.txt2.text = t.name
+            }
             when (t.status) {
                 Cons.BLOCKUNG -> {
                     binding.txt2.setBackgroundResource(R.drawable.blockung)
-                    if (t.blockDatum.isNotEmpty()){
-                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())){
+                    if (t.blockDatum.isNotEmpty()) {
+                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())) {
                             blinkTxt(binding.txt2)
                         }
                     }
                 }
                 Cons.BUCHUNG -> binding.txt2.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt2.setBackgroundResource(R.drawable.sonstiges)
+                Cons.URLAUB -> binding.txtUrlaub.text =
+                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
             }
         } else {
-            binding.txt3.visibility = View.VISIBLE
-            binding.txt3.text = t.name
-            binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
-            binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
-            binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+            if (t.status != Cons.URLAUB) {
+                binding.txt3.visibility = View.VISIBLE
+                binding.txt3.text = t.name
+                binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+                binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+                binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+            }
             when (t.status) {
                 Cons.BLOCKUNG -> {
                     binding.txt3.setBackgroundResource(R.drawable.blockung)
-                    if (t.blockDatum.isNotEmpty()){
-                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())){
+                    if (t.blockDatum.isNotEmpty()) {
+                        if (stringToDate(t.blockDatum).isBefore(LocalDate.now())) {
                             blinkTxt(binding.txt3)
                         }
                     }
                 }
                 Cons.BUCHUNG -> binding.txt3.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt3.setBackgroundResource(R.drawable.sonstiges)
+                Cons.URLAUB -> binding.txtUrlaub.text =
+                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
             }
+        }
+    }
+
+    private fun urlaubColor(binding: TagBinding, status: String) {
+        if (status != Cons.URLAUB) {
+            binding.txtUrlaub.setTextColor(Color.WHITE)
+        }
+    }
+
+    private fun urlaubSetzen(current: String, toAdd: String): String {
+        return if (current.isEmpty()) {
+            toAdd.substring(0, 1)
+        } else {
+            current.substring(0, 1) + ", " + toAdd.substring(0, 1)
         }
     }
 
