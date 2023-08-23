@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.pyracalendar.database.Veranstaltung
 import com.example.pyracalendar.databinding.ActivityMainBinding
@@ -482,7 +483,7 @@ class MainActivity : FragmentActivity() {
     private fun tagSetzen(binding: TagBinding, t: KalenderEintrag) {
         urlaubColor(binding, t.status)
         if (binding.txt1.text.isNullOrEmpty()) {
-            if (t.status != Cons.URLAUB) {
+            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN) {
                 binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
                 binding.txt1.text = t.name
             }
@@ -497,11 +498,11 @@ class MainActivity : FragmentActivity() {
                 }
                 Cons.BUCHUNG -> binding.txt1.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt1.setBackgroundResource(R.drawable.sonstiges)
-                Cons.URLAUB -> binding.txtUrlaub.text =
-                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.URLAUB -> binding.txtUrlaub.text = urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.FERIEN -> binding.txtTag.setBackgroundColor(ContextCompat.getColor(this,R.color.ferien))
             }
         } else if (binding.txt2.text.isNullOrEmpty()) {
-            if (t.status != Cons.URLAUB) {
+            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN) {
                 binding.txt2.visibility = View.VISIBLE
                 binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
                 binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
@@ -518,11 +519,11 @@ class MainActivity : FragmentActivity() {
                 }
                 Cons.BUCHUNG -> binding.txt2.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt2.setBackgroundResource(R.drawable.sonstiges)
-                Cons.URLAUB -> binding.txtUrlaub.text =
-                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.URLAUB -> binding.txtUrlaub.text = urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.FERIEN -> binding.txtTag.setBackgroundColor(ContextCompat.getColor(this,R.color.ferien))
             }
         } else {
-            if (t.status != Cons.URLAUB) {
+            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN) {
                 binding.txt3.visibility = View.VISIBLE
                 binding.txt3.text = t.name
                 binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
@@ -540,8 +541,8 @@ class MainActivity : FragmentActivity() {
                 }
                 Cons.BUCHUNG -> binding.txt3.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt3.setBackgroundResource(R.drawable.sonstiges)
-                Cons.URLAUB -> binding.txtUrlaub.text =
-                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.URLAUB -> binding.txtUrlaub.text = urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.FERIEN -> binding.txtTag.setBackgroundColor(ContextCompat.getColor(this,R.color.ferien))
             }
         }
     }

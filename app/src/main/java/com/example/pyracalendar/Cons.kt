@@ -13,6 +13,7 @@ class Cons {
         const val BUCHUNG = "Buchung"
         const val SONSTIGES = "Sonstiges"
         const val URLAUB = "Urlaub"
+        const val FERIEN = "Ferien"
         const val BUSINESS = "Business"
         const val FREMDVERANSTALTER = "Fremdveranstalter"
         const val PRIVAT = "Privat"

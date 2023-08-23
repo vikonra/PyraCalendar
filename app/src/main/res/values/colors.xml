@@ -13,6 +13,8 @@
     <color name="medium">#0F615A</color>
     <color name="light">#267E76</color>
 
+    <color name="ferien">#6673C87C</color>
+
     <color name="blockung">#292929</color>
     <color name="blockung_rand">#0B0B0B</color>
     <color name="buchung">#930000</color>
