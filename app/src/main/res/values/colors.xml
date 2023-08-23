@@ -13,7 +13,8 @@
     <color name="medium">#0F615A</color>
     <color name="light">#267E76</color>
 
-    <color name="ferien">#6673C87C</color>
+    <color name="ferien">#4073C87C</color>
+    <color name="ferien_wochenende">#40235C2B</color>
 
     <color name="blockung">#292929</color>
     <color name="blockung_rand">#0B0B0B</color>

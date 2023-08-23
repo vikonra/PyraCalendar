@@ -276,46 +276,57 @@ class MainActivity : FragmentActivity() {
                     val binding = binding.monat1
                     monatSetzen(binding, t)
                 }
+
                 2 -> {
                     val binding = binding.monat2
                     monatSetzen(binding, t)
                 }
+
                 3 -> {
                     val binding = binding.monat3
                     monatSetzen(binding, t)
                 }
+
                 4 -> {
                     val binding = binding.monat4
                     monatSetzen(binding, t)
                 }
+
                 5 -> {
                     val binding = binding.monat5
                     monatSetzen(binding, t)
                 }
+
                 6 -> {
                     val binding = binding.monat6
                     monatSetzen(binding, t)
                 }
+
                 7 -> {
                     val binding = binding.monat7
                     monatSetzen(binding, t)
                 }
+
                 8 -> {
                     val binding = binding.monat8
                     monatSetzen(binding, t)
                 }
+
                 9 -> {
                     val binding = binding.monat9
                     monatSetzen(binding, t)
                 }
+
                 10 -> {
                     val binding = binding.monat10
                     monatSetzen(binding, t)
                 }
+
                 11 -> {
                     val binding = binding.monat11
                     monatSetzen(binding, t)
                 }
+
                 12 -> {
                     val binding = binding.monat12
                     monatSetzen(binding, t)
@@ -350,128 +361,158 @@ class MainActivity : FragmentActivity() {
         return currentDate.monthValue
     }
 
-    private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag){
+    private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag) {
         when (t.datum.dayOfMonth) {
             1 -> {
                 val bindingTag = bindingMonat.tag1
                 tagSetzen(bindingTag, t)
             }
+
             2 -> {
                 val bindingTag = bindingMonat.tag2
                 tagSetzen(bindingTag, t)
             }
+
             3 -> {
                 val bindingTag = bindingMonat.tag3
                 tagSetzen(bindingTag, t)
             }
+
             4 -> {
                 val bindingTag = bindingMonat.tag4
                 tagSetzen(bindingTag, t)
             }
+
             5 -> {
                 val bindingTag = bindingMonat.tag5
                 tagSetzen(bindingTag, t)
             }
+
             6 -> {
                 val bindingTag = bindingMonat.tag6
                 tagSetzen(bindingTag, t)
             }
+
             7 -> {
                 val bindingTag = bindingMonat.tag7
                 tagSetzen(bindingTag, t)
             }
+
             8 -> {
                 val bindingTag = bindingMonat.tag8
                 tagSetzen(bindingTag, t)
             }
+
             9 -> {
                 val bindingTag = bindingMonat.tag9
                 tagSetzen(bindingTag, t)
             }
+
             10 -> {
                 val bindingTag = bindingMonat.tag10
                 tagSetzen(bindingTag, t)
             }
+
             11 -> {
                 val bindingTag = bindingMonat.tag11
                 tagSetzen(bindingTag, t)
             }
+
             12 -> {
                 val bindingTag = bindingMonat.tag12
                 tagSetzen(bindingTag, t)
             }
+
             13 -> {
                 val bindingTag = bindingMonat.tag13
                 tagSetzen(bindingTag, t)
             }
+
             14 -> {
                 val bindingTag = bindingMonat.tag14
                 tagSetzen(bindingTag, t)
             }
+
             15 -> {
                 val bindingTag = bindingMonat.tag15
                 tagSetzen(bindingTag, t)
             }
+
             16 -> {
                 val bindingTag = bindingMonat.tag16
                 tagSetzen(bindingTag, t)
             }
+
             17 -> {
                 val bindingTag = bindingMonat.tag17
                 tagSetzen(bindingTag, t)
             }
+
             18 -> {
                 val bindingTag = bindingMonat.tag18
                 tagSetzen(bindingTag, t)
             }
+
             19 -> {
                 val bindingTag = bindingMonat.tag19
                 tagSetzen(bindingTag, t)
             }
+
             20 -> {
                 val bindingTag = bindingMonat.tag20
                 tagSetzen(bindingTag, t)
             }
+
             21 -> {
                 val bindingTag = bindingMonat.tag21
                 tagSetzen(bindingTag, t)
             }
+
             22 -> {
                 val bindingTag = bindingMonat.tag22
                 tagSetzen(bindingTag, t)
             }
+
             23 -> {
                 val bindingTag = bindingMonat.tag23
                 tagSetzen(bindingTag, t)
             }
+
             24 -> {
                 val bindingTag = bindingMonat.tag24
                 tagSetzen(bindingTag, t)
             }
+
             25 -> {
                 val bindingTag = bindingMonat.tag25
                 tagSetzen(bindingTag, t)
             }
+
             26 -> {
                 val bindingTag = bindingMonat.tag26
                 tagSetzen(bindingTag, t)
             }
+
             27 -> {
                 val bindingTag = bindingMonat.tag27
                 tagSetzen(bindingTag, t)
             }
+
             28 -> {
                 val bindingTag = bindingMonat.tag28
                 tagSetzen(bindingTag, t)
             }
+
             29 -> {
                 val bindingTag = bindingMonat.tag29
                 tagSetzen(bindingTag, t)
             }
+
             30 -> {
                 val bindingTag = bindingMonat.tag30
                 tagSetzen(bindingTag, t)
             }
+
             31 -> {
                 val bindingTag = bindingMonat.tag31
                 tagSetzen(bindingTag, t)
@@ -496,10 +537,18 @@ class MainActivity : FragmentActivity() {
                         }
                     }
                 }
+
                 Cons.BUCHUNG -> binding.txt1.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt1.setBackgroundResource(R.drawable.sonstiges)
-                Cons.URLAUB -> binding.txtUrlaub.text = urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
-                Cons.FERIEN -> binding.txtTag.setBackgroundColor(ContextCompat.getColor(this,R.color.ferien))
+                Cons.URLAUB -> binding.txtUrlaub.text =
+                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.FERIEN -> {
+                    if (isWeekend(t.datum)){
+                        binding.root.setBackgroundResource(R.drawable.tag_ferien_wochenende)
+                    } else {
+                        binding.root.setBackgroundResource(R.drawable.tag_ferien)
+                    }
+                }
             }
         } else if (binding.txt2.text.isNullOrEmpty()) {
             if (t.status != Cons.URLAUB && t.status != Cons.FERIEN) {
@@ -517,10 +566,18 @@ class MainActivity : FragmentActivity() {
                         }
                     }
                 }
+
                 Cons.BUCHUNG -> binding.txt2.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt2.setBackgroundResource(R.drawable.sonstiges)
-                Cons.URLAUB -> binding.txtUrlaub.text = urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
-                Cons.FERIEN -> binding.txtTag.setBackgroundColor(ContextCompat.getColor(this,R.color.ferien))
+                Cons.URLAUB -> binding.txtUrlaub.text =
+                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.FERIEN -> {
+                    if (isWeekend(t.datum)){
+                        binding.root.setBackgroundResource(R.drawable.tag_ferien_wochenende)
+                    } else {
+                        binding.root.setBackgroundResource(R.drawable.tag_ferien)
+                    }
+                }
             }
         } else {
             if (t.status != Cons.URLAUB && t.status != Cons.FERIEN) {
@@ -539,16 +596,24 @@ class MainActivity : FragmentActivity() {
                         }
                     }
                 }
+
                 Cons.BUCHUNG -> binding.txt3.setBackgroundResource(R.drawable.buchung)
                 Cons.SONSTIGES -> binding.txt3.setBackgroundResource(R.drawable.sonstiges)
-                Cons.URLAUB -> binding.txtUrlaub.text = urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
-                Cons.FERIEN -> binding.txtTag.setBackgroundColor(ContextCompat.getColor(this,R.color.ferien))
+                Cons.URLAUB -> binding.txtUrlaub.text =
+                    urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+                Cons.FERIEN -> {
+                    if (isWeekend(t.datum)){
+                        binding.root.setBackgroundResource(R.drawable.tag_ferien_wochenende)
+                    } else {
+                        binding.root.setBackgroundResource(R.drawable.tag_ferien)
+                    }
+                }
             }
         }
     }
 
     private fun urlaubColor(binding: TagBinding, status: String) {
-        if (status != Cons.URLAUB) {
+        if (status != Cons.URLAUB && status != Cons.FERIEN) {
             binding.txtUrlaub.setTextColor(Color.WHITE)
         }
     }
