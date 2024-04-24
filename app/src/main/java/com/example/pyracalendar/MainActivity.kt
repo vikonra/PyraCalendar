@@ -233,7 +233,7 @@ class MainActivity : FragmentActivity() {
         if (r.contains(Cons.C1500)) {
             raum = "C"
             if (r.contains(Cons.B800)) {
-                raum += ", B"
+                raum += ", ◭"
                 if (r.contains(Cons.P250)) {
                     raum += ", P"
                 }
@@ -241,14 +241,14 @@ class MainActivity : FragmentActivity() {
                 raum += ", P"
             }
         } else if (r.contains(Cons.B800)) {
-            raum = "B"
+            raum = "◭"
             if (r.contains(Cons.P250)) {
                 raum += ", P"
             }
         } else {
             raum = "P"
         }
-        if (raum == "C, B, P") {
+        if (raum == "C, ◭, P") {
             raum = "g. H."
         }
         return raum
@@ -622,7 +622,7 @@ class MainActivity : FragmentActivity() {
         return if (current.isEmpty()) {
             toAdd.substring(0, 1)
         } else {
-            current.substring(0, 1) + ", " + toAdd.substring(0, 1)
+            current + ", " + toAdd.substring(0, 1)
         }
     }
 
