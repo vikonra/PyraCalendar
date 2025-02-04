@@ -13,15 +13,17 @@
     <color name="medium">#0F615A</color>
     <color name="light">#267E76</color>
 
-    <color name="ferien">#4073C87C</color>
-    <color name="ferien_wochenende">#40235C2B</color>
+    <color name="ferien">#3351929C</color>
+    <color name="ferien_wochenende">#33203437</color>
+    <color name="season">#33C6AE7C</color>
+    <color name="season_wochenende">#33433925</color>
 
-    <color name="blockung">#292929</color>
-    <color name="blockung_rand">#0B0B0B</color>
-    <color name="buchung">#930000</color>
-    <color name="buchung_rand">#5C0000</color>
-    <color name="sonstiges">#00A370</color>
-    <color name="sonstiges_rand">#006746</color>
+    <color name="blockung">#616161</color>
+    <color name="blockung_rand">#4E4E4E</color>
+    <color name="buchung">#8A5050</color>
+    <color name="buchung_rand">#985151</color>
+    <color name="sonstiges">#708F9C</color>
+    <color name="sonstiges_rand">#608697</color>
     <color name="rahmen">#C5C5C5</color>
     <color name="rahmen_wochenende">#DDDDDD</color>
 </resources>

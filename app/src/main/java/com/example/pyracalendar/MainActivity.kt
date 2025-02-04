@@ -12,8 +12,8 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import com.example.pyraapp.database.Event
 import com.example.pyracalendar.database.Veranstaltung
 import com.example.pyracalendar.databinding.ActivityMainBinding
 import com.example.pyracalendar.databinding.MonatBinding
@@ -87,26 +87,26 @@ class MainActivity : FragmentActivity() {
 
     private fun kalenderAbfragen() {
         updateMonthList()
-        val databaseVeranstaltung: DatabaseReference =
-            FirebaseDatabase.getInstance(Constants.DOMAIN).getReference("Veranstaltung")
-        val veranstaltungListener = object : ValueEventListener {
+        val databaseEvent: DatabaseReference =
+            FirebaseDatabase.getInstance(Constants.DOMAIN).getReference("Event")
+        val eventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                var vaList: ArrayList<Veranstaltung> = ArrayList()
+                var vaList: ArrayList<Event> = ArrayList()
 
-                for (veranstaltungSnapshot in dataSnapshot.children) {
-                    val veranstaltung: Veranstaltung? =
-                        veranstaltungSnapshot.getValue(Veranstaltung::class.java)
-                    if (veranstaltung != null) {
-                        if (veranstaltung.datumBeginn != null) {
-                            if (veranstaltung.datumBeginn.substring(6, 10)
-                                    .toInt() == monthList[0].year || veranstaltung.datumBeginn.substring(
+                for (eventListener in dataSnapshot.children) {
+                    val event: Event? =
+                        eventListener.getValue(Event::class.java)
+                    if (event != null) {
+                        if (event.datum?.event?.beginn != null) {
+                            if (event.datum.event.beginn.substring(6, 10)
+                                    .toInt() == monthList[0].year || event.datum.event.beginn.substring(
                                     6,
                                     10
                                 )
                                     .toInt() == monthList[11].year
                             ) {
-                                vaList.add(veranstaltung)
+                                vaList.add(event)
                             }
                         }
                     }
@@ -119,20 +119,20 @@ class MainActivity : FragmentActivity() {
                 Log.w(ContentValues.TAG, "loadPost:onCancelled", databaseError.toException())
             }
         }
-        databaseVeranstaltung.orderByChild("erstellDatum")
-            .addValueEventListener(veranstaltungListener)
+        databaseEvent.orderByChild("erstellDatum")
+            .addValueEventListener(eventListener)
     }
 
-    private fun kalenderSetzen(vaList: ArrayList<Veranstaltung>) {
+    private fun kalenderSetzen(vaList: ArrayList<Event>) {
         var kalenderListe: ArrayList<KalenderEintrag> = ArrayList()
-        for (va in vaList) {
+        for (e in vaList) {
 
             //Aufbautage & Abbautage hinzufügen
-            if (va.aufbautage == true) {
-                if (!va.aufbauBeginn.isNullOrEmpty()) {
-                    val tage: Int = (inTagen(va.datumBeginn) - inTagen(va.aufbauBeginn)) - 1
+            if (e.typ?.aufbautage == true) {
+                if (!e.datum?.aufbau?.beginn.isNullOrEmpty()) {
+                    val tage: Int = (inTagen(e.datum?.event?.beginn) - inTagen(e.datum?.aufbau?.beginn)) - 1
                     val date =
-                        LocalDate.parse(va.aufbauBeginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        LocalDate.parse(e.datum?.aufbau?.beginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                     for (i in 0..tage) {
                         val k = KalenderEintrag()
                         k.datum = date.plusDays(i.toLong())
@@ -140,23 +140,23 @@ class MainActivity : FragmentActivity() {
                                 endDate
                             ) || k.datum.isEqual(endDate))
                         ) {
-                            if (va.status != Cons.SONSTIGES) {
+                            if (e.typ.status != Cons.SONSTIGES) {
                                 k.name =
-                                    "(A) " + va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
+                                    "(A) " + e.name.toString() + " (" + raumsetzen(e.raum?.summe!!) + ")"
                             } else {
-                                k.name = "(A) " + va.kunde.toString()
+                                k.name = "(A) " + e.name.toString()
                             }
-                            k.status = va.status.toString()
-                            k.blockDatum = va.blockDatum.toString()
+                            k.status = e.typ.status.toString()
+                            k.blockDatum = e.blockung?.datum.toString()
                             kalenderListe.add(k)
                         }
                     }
                 }
             }
-            if (!va.abbauEnde.isNullOrEmpty()) {
-                val tage: Int = (inTagen(va.abbauEnde) - inTagen(va.datumEnde)) - 1
+            if (!e.datum?.aufbau?.ende.isNullOrEmpty()) {
+                val tage: Int = (inTagen(e.datum?.aufbau?.ende) - inTagen(e.datum?.event?.ende)) - 1
                 val date =
-                    LocalDate.parse(va.datumEnde, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    LocalDate.parse(e.datum?.event?.ende, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         .plusDays(1)
                 for (i in 0..tage) {
                     val k = KalenderEintrag()
@@ -165,15 +165,15 @@ class MainActivity : FragmentActivity() {
                             endDate
                         ) || k.datum.isEqual(endDate))
                     ) {
-                        if (va.status != Cons.SONSTIGES) {
+                        if (e.typ?.status != Cons.SONSTIGES) {
                             k.name =
-                                "(A) " + va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
+                                "(A) " + e.name.toString() + " (" + raumsetzen(e.raum?.summe!!) + ")"
                         } else {
                             k.name =
-                                "(A) " + va.kunde.toString()
+                                "(A) " + e.name.toString()
                         }
-                        k.status = va.status.toString()
-                        k.blockDatum = va.blockDatum.toString()
+                        k.status = e.typ?.status.toString()
+                        k.blockDatum = e.blockung?.datum.toString()
                         kalenderListe.add(k)
                     }
                 }
@@ -181,9 +181,9 @@ class MainActivity : FragmentActivity() {
 
 
             //Veranstaltungstage hinzufügen
-            val tage: Int = (inTagen(va.datumEnde) - inTagen(va.datumBeginn))
+            val tage: Int = (inTagen(e.datum?.event?.ende) - inTagen(e.datum?.event?.beginn))
             val date =
-                LocalDate.parse(va.datumBeginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                LocalDate.parse(e.datum?.event?.beginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
             for (i in 0..tage) {
                 val k = KalenderEintrag()
@@ -192,13 +192,13 @@ class MainActivity : FragmentActivity() {
                         endDate
                     ) || k.datum.isEqual(endDate))
                 ) {
-                    if (va.status != Cons.SONSTIGES) {
-                        k.name = va.kunde.toString() + " (" + raumsetzen(va.raum!!) + ")"
+                    if (e.typ?.status != Cons.SONSTIGES) {
+                        k.name = e.name.toString() + " (" + raumsetzen(e.raum?.summe!!) + ")"
                     } else {
-                        k.name = va.kunde.toString()
+                        k.name = e.name.toString()
                     }
-                    k.status = va.status.toString()
-                    k.blockDatum = va.blockDatum.toString()
+                    k.status = e.typ?.status.toString()
+                    k.blockDatum = e.blockung?.datum.toString()
                     kalenderListe.add(k)
                 }
             }
@@ -209,8 +209,8 @@ class MainActivity : FragmentActivity() {
     fun stringToDate(datum: String?): LocalDate {
         val localDate: LocalDate = LocalDate.of(
             datum?.substring(6, 10)!!.toInt(),
-            datum?.substring(3, 5)!!.toInt(),
-            datum?.substring(0, 2)!!.toInt()
+            datum.substring(3, 5).toInt(),
+            datum.substring(0, 2).toInt()
         )
         return localDate
     }
@@ -258,79 +258,23 @@ class MainActivity : FragmentActivity() {
     private fun updateUI(kalenderListe: ArrayList<KalenderEintrag>) {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.btnRight.setOnClickListener {
-            monthOffset++
-            kalenderAbfragen()
-        }
-        binding.btnLeft.setOnClickListener {
-            monthOffset--
-            kalenderAbfragen()
-        }
+
+        binding.btnRight.setOnClickListener { monthOffset++; kalenderAbfragen() }
+        binding.btnLeft.setOnClickListener { monthOffset--; kalenderAbfragen() }
+
         setTagNummern()
-        binding.txtYear.text = monthListString[0] + "  " + monthList[0].year.toString()
+        binding.txtYear.text = "${monthListString[0]}  ${monthList[0].year}"
+
+        val monate = listOf(
+            binding.monat1, binding.monat2, binding.monat3, binding.monat4,
+            binding.monat5, binding.monat6, binding.monat7, binding.monat8,
+            binding.monat9, binding.monat10, binding.monat11, binding.monat12
+        )
 
         for (t in kalenderListe) {
-
-            when (dateTransform(t.datum)) {
-                1 -> {
-                    val binding = binding.monat1
-                    monatSetzen(binding, t)
-                }
-
-                2 -> {
-                    val binding = binding.monat2
-                    monatSetzen(binding, t)
-                }
-
-                3 -> {
-                    val binding = binding.monat3
-                    monatSetzen(binding, t)
-                }
-
-                4 -> {
-                    val binding = binding.monat4
-                    monatSetzen(binding, t)
-                }
-
-                5 -> {
-                    val binding = binding.monat5
-                    monatSetzen(binding, t)
-                }
-
-                6 -> {
-                    val binding = binding.monat6
-                    monatSetzen(binding, t)
-                }
-
-                7 -> {
-                    val binding = binding.monat7
-                    monatSetzen(binding, t)
-                }
-
-                8 -> {
-                    val binding = binding.monat8
-                    monatSetzen(binding, t)
-                }
-
-                9 -> {
-                    val binding = binding.monat9
-                    monatSetzen(binding, t)
-                }
-
-                10 -> {
-                    val binding = binding.monat10
-                    monatSetzen(binding, t)
-                }
-
-                11 -> {
-                    val binding = binding.monat11
-                    monatSetzen(binding, t)
-                }
-
-                12 -> {
-                    val binding = binding.monat12
-                    monatSetzen(binding, t)
-                }
+            val index = dateTransform(t.datum) - 1
+            if (index in monate.indices) {
+                monatSetzen(monate[index], t)
             }
         }
     }
@@ -362,161 +306,19 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag) {
-        when (t.datum.dayOfMonth) {
-            1 -> {
-                val bindingTag = bindingMonat.tag1
-                tagSetzen(bindingTag, t)
-            }
+        val tage = listOf(
+            bindingMonat.tag1, bindingMonat.tag2, bindingMonat.tag3, bindingMonat.tag4, bindingMonat.tag5,
+            bindingMonat.tag6, bindingMonat.tag7, bindingMonat.tag8, bindingMonat.tag9, bindingMonat.tag10,
+            bindingMonat.tag11, bindingMonat.tag12, bindingMonat.tag13, bindingMonat.tag14, bindingMonat.tag15,
+            bindingMonat.tag16, bindingMonat.tag17, bindingMonat.tag18, bindingMonat.tag19, bindingMonat.tag20,
+            bindingMonat.tag21, bindingMonat.tag22, bindingMonat.tag23, bindingMonat.tag24, bindingMonat.tag25,
+            bindingMonat.tag26, bindingMonat.tag27, bindingMonat.tag28, bindingMonat.tag29, bindingMonat.tag30,
+            bindingMonat.tag31
+        )
 
-            2 -> {
-                val bindingTag = bindingMonat.tag2
-                tagSetzen(bindingTag, t)
-            }
-
-            3 -> {
-                val bindingTag = bindingMonat.tag3
-                tagSetzen(bindingTag, t)
-            }
-
-            4 -> {
-                val bindingTag = bindingMonat.tag4
-                tagSetzen(bindingTag, t)
-            }
-
-            5 -> {
-                val bindingTag = bindingMonat.tag5
-                tagSetzen(bindingTag, t)
-            }
-
-            6 -> {
-                val bindingTag = bindingMonat.tag6
-                tagSetzen(bindingTag, t)
-            }
-
-            7 -> {
-                val bindingTag = bindingMonat.tag7
-                tagSetzen(bindingTag, t)
-            }
-
-            8 -> {
-                val bindingTag = bindingMonat.tag8
-                tagSetzen(bindingTag, t)
-            }
-
-            9 -> {
-                val bindingTag = bindingMonat.tag9
-                tagSetzen(bindingTag, t)
-            }
-
-            10 -> {
-                val bindingTag = bindingMonat.tag10
-                tagSetzen(bindingTag, t)
-            }
-
-            11 -> {
-                val bindingTag = bindingMonat.tag11
-                tagSetzen(bindingTag, t)
-            }
-
-            12 -> {
-                val bindingTag = bindingMonat.tag12
-                tagSetzen(bindingTag, t)
-            }
-
-            13 -> {
-                val bindingTag = bindingMonat.tag13
-                tagSetzen(bindingTag, t)
-            }
-
-            14 -> {
-                val bindingTag = bindingMonat.tag14
-                tagSetzen(bindingTag, t)
-            }
-
-            15 -> {
-                val bindingTag = bindingMonat.tag15
-                tagSetzen(bindingTag, t)
-            }
-
-            16 -> {
-                val bindingTag = bindingMonat.tag16
-                tagSetzen(bindingTag, t)
-            }
-
-            17 -> {
-                val bindingTag = bindingMonat.tag17
-                tagSetzen(bindingTag, t)
-            }
-
-            18 -> {
-                val bindingTag = bindingMonat.tag18
-                tagSetzen(bindingTag, t)
-            }
-
-            19 -> {
-                val bindingTag = bindingMonat.tag19
-                tagSetzen(bindingTag, t)
-            }
-
-            20 -> {
-                val bindingTag = bindingMonat.tag20
-                tagSetzen(bindingTag, t)
-            }
-
-            21 -> {
-                val bindingTag = bindingMonat.tag21
-                tagSetzen(bindingTag, t)
-            }
-
-            22 -> {
-                val bindingTag = bindingMonat.tag22
-                tagSetzen(bindingTag, t)
-            }
-
-            23 -> {
-                val bindingTag = bindingMonat.tag23
-                tagSetzen(bindingTag, t)
-            }
-
-            24 -> {
-                val bindingTag = bindingMonat.tag24
-                tagSetzen(bindingTag, t)
-            }
-
-            25 -> {
-                val bindingTag = bindingMonat.tag25
-                tagSetzen(bindingTag, t)
-            }
-
-            26 -> {
-                val bindingTag = bindingMonat.tag26
-                tagSetzen(bindingTag, t)
-            }
-
-            27 -> {
-                val bindingTag = bindingMonat.tag27
-                tagSetzen(bindingTag, t)
-            }
-
-            28 -> {
-                val bindingTag = bindingMonat.tag28
-                tagSetzen(bindingTag, t)
-            }
-
-            29 -> {
-                val bindingTag = bindingMonat.tag29
-                tagSetzen(bindingTag, t)
-            }
-
-            30 -> {
-                val bindingTag = bindingMonat.tag30
-                tagSetzen(bindingTag, t)
-            }
-
-            31 -> {
-                val bindingTag = bindingMonat.tag31
-                tagSetzen(bindingTag, t)
-            }
+        val index = t.datum.dayOfMonth - 1
+        if (index in tage.indices) {
+            tagSetzen(tage[index], t)
         }
     }
 
@@ -524,7 +326,7 @@ class MainActivity : FragmentActivity() {
     private fun tagSetzen(binding: TagBinding, t: KalenderEintrag) {
         urlaubColor(binding, t.status)
         if (binding.txt1.text.isNullOrEmpty()) {
-            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN) {
+            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN && t.status != Cons.SEASON) {
                 binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
                 binding.txt1.text = t.name
             }
@@ -542,16 +344,15 @@ class MainActivity : FragmentActivity() {
                 Cons.SONSTIGES -> binding.txt1.setBackgroundResource(R.drawable.sonstiges)
                 Cons.URLAUB -> binding.txtUrlaub.text =
                     urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
-                Cons.FERIEN -> {
-                    if (isWeekend(t.datum)){
-                        binding.root.setBackgroundResource(R.drawable.tag_ferien_wochenende)
-                    } else {
-                        binding.root.setBackgroundResource(R.drawable.tag_ferien)
-                    }
-                }
+                Cons.FERIEN -> binding.root.setBackgroundResource(
+                    if (isWeekend(t.datum)) R.drawable.tag_ferien_wochenende else R.drawable.tag_ferien
+                )
+                Cons.SEASON -> binding.root.setBackgroundResource(
+                    if (isWeekend(t.datum)) R.drawable.tag_season_wochenende else R.drawable.tag_season
+                )
             }
         } else if (binding.txt2.text.isNullOrEmpty()) {
-            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN) {
+            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN && t.status != Cons.SEASON) {
                 binding.txt2.visibility = View.VISIBLE
                 binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
                 binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
@@ -571,16 +372,15 @@ class MainActivity : FragmentActivity() {
                 Cons.SONSTIGES -> binding.txt2.setBackgroundResource(R.drawable.sonstiges)
                 Cons.URLAUB -> binding.txtUrlaub.text =
                     urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
-                Cons.FERIEN -> {
-                    if (isWeekend(t.datum)){
-                        binding.root.setBackgroundResource(R.drawable.tag_ferien_wochenende)
-                    } else {
-                        binding.root.setBackgroundResource(R.drawable.tag_ferien)
-                    }
-                }
+                Cons.FERIEN -> binding.root.setBackgroundResource(
+                    if (isWeekend(t.datum)) R.drawable.tag_ferien_wochenende else R.drawable.tag_ferien
+                )
+                Cons.SEASON -> binding.root.setBackgroundResource(
+                    if (isWeekend(t.datum)) R.drawable.tag_season_wochenende else R.drawable.tag_season
+                )
             }
         } else {
-            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN) {
+            if (t.status != Cons.URLAUB && t.status != Cons.FERIEN && t.status != Cons.SEASON) {
                 binding.txt3.visibility = View.VISIBLE
                 binding.txt3.text = t.name
                 binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
@@ -601,19 +401,19 @@ class MainActivity : FragmentActivity() {
                 Cons.SONSTIGES -> binding.txt3.setBackgroundResource(R.drawable.sonstiges)
                 Cons.URLAUB -> binding.txtUrlaub.text =
                     urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
-                Cons.FERIEN -> {
-                    if (isWeekend(t.datum)){
-                        binding.root.setBackgroundResource(R.drawable.tag_ferien_wochenende)
-                    } else {
-                        binding.root.setBackgroundResource(R.drawable.tag_ferien)
-                    }
-                }
+                Cons.FERIEN -> binding.root.setBackgroundResource(
+                    if (isWeekend(t.datum)) R.drawable.tag_ferien_wochenende else R.drawable.tag_ferien
+                )
+                Cons.SEASON -> binding.root.setBackgroundResource(
+                    if (isWeekend(t.datum)) R.drawable.tag_season_wochenende else R.drawable.tag_season
+                )
             }
         }
     }
 
+
     private fun urlaubColor(binding: TagBinding, status: String) {
-        if (status != Cons.URLAUB && status != Cons.FERIEN) {
+        if (status != Cons.URLAUB && status != Cons.FERIEN && status != Cons.SEASON) {
             binding.txtUrlaub.setTextColor(Color.WHITE)
         }
     }
@@ -651,61 +451,32 @@ class MainActivity : FragmentActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun setTagNummern() {
-        monthListString.clear()
-        for (i in 0..11) {
-            when (monthList[i].monthValue) {
-                1 -> monthListString.add("Jan")
-                2 -> monthListString.add("Feb")
-                3 -> monthListString.add("Mär")
-                4 -> monthListString.add("Apr")
-                5 -> monthListString.add("Mai")
-                6 -> monthListString.add("Jun")
-                7 -> monthListString.add("Jul")
-                8 -> monthListString.add("Aug")
-                9 -> monthListString.add("Sep")
-                10 -> monthListString.add("Okt")
-                11 -> monthListString.add("Nov")
-                12 -> monthListString.add("Dez")
-            }
-        }
-        binding.titel.txtMonat1.text = monthListString[0]
-        binding.titel.txtMonat2.text = monthListString[1]
-        binding.titel.txtMonat3.text = monthListString[2]
-        binding.titel.txtMonat4.text = monthListString[3]
-        binding.titel.txtMonat5.text = monthListString[4]
-        binding.titel.txtMonat6.text = monthListString[5]
-        binding.titel.txtMonat7.text = monthListString[6]
-        binding.titel.txtMonat8.text = monthListString[7]
-        binding.titel.txtMonat9.text = monthListString[8]
-        binding.titel.txtMonat10.text = monthListString[9]
-        binding.titel.txtMonat11.text = monthListString[10]
-        binding.titel.txtMonat12.text = monthListString[11]
+        val monthAbbreviations = listOf("Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez")
 
-        var binding = this.binding.monat1
-        setTagNummerMonat(binding, monthList[0].year, monthList[0].monthValue)
-        binding = this.binding.monat2
-        setTagNummerMonat(binding, monthList[1].year, monthList[1].monthValue)
-        binding = this.binding.monat3
-        setTagNummerMonat(binding, monthList[2].year, monthList[2].monthValue)
-        binding = this.binding.monat4
-        setTagNummerMonat(binding, monthList[3].year, monthList[3].monthValue)
-        binding = this.binding.monat5
-        setTagNummerMonat(binding, monthList[4].year, monthList[4].monthValue)
-        binding = this.binding.monat6
-        setTagNummerMonat(binding, monthList[5].year, monthList[5].monthValue)
-        binding = this.binding.monat7
-        setTagNummerMonat(binding, monthList[6].year, monthList[6].monthValue)
-        binding = this.binding.monat8
-        setTagNummerMonat(binding, monthList[7].year, monthList[7].monthValue)
-        binding = this.binding.monat9
-        setTagNummerMonat(binding, monthList[8].year, monthList[8].monthValue)
-        binding = this.binding.monat10
-        setTagNummerMonat(binding, monthList[9].year, monthList[9].monthValue)
-        binding = this.binding.monat11
-        setTagNummerMonat(binding, monthList[10].year, monthList[10].monthValue)
-        binding = this.binding.monat12
-        setTagNummerMonat(binding, monthList[11].year, monthList[11].monthValue)
+        monthListString.clear()
+        monthListString.addAll(monthList.map { monthAbbreviations[it.monthValue - 1] })
+
+        val monthTextViews = listOf(
+            binding.titel.txtMonat1, binding.titel.txtMonat2, binding.titel.txtMonat3, binding.titel.txtMonat4,
+            binding.titel.txtMonat5, binding.titel.txtMonat6, binding.titel.txtMonat7, binding.titel.txtMonat8,
+            binding.titel.txtMonat9, binding.titel.txtMonat10, binding.titel.txtMonat11, binding.titel.txtMonat12
+        )
+
+        monthTextViews.forEachIndexed { index, textView ->
+            textView.text = monthListString[index]
+        }
+
+        val monthBindings = listOf(
+            binding.monat1, binding.monat2, binding.monat3, binding.monat4,
+            binding.monat5, binding.monat6, binding.monat7, binding.monat8,
+            binding.monat9, binding.monat10, binding.monat11, binding.monat12
+        )
+
+        monthBindings.forEachIndexed { index, monatBinding ->
+            setTagNummerMonat(monatBinding, monthList[index].year, monthList[index].monthValue)
+        }
     }
+
 
     @SuppressLint("SetTextI18n")
     private fun setTagNummerMonat(binding: MonatBinding, jahr: Int, monat: Int) {

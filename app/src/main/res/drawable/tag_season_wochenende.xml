@@ -2,8 +2,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
-            <solid android:color="@color/sonstiges" />
-            <corners android:radius="1.5dp" />
+            <stroke android:color="@color/rahmen" android:width="0.5dp" />
+            <solid android:color="@color/season_wochenende" />
         </shape>
     </item>
 </selector>

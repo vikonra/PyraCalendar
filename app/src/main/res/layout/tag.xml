@@ -4,8 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
     android:layout_height="0dp"
+    android:paddingTop="0.25dp"
+    android:paddingEnd="0.25dp"
     android:background="@drawable/tag"
-    android:padding="0.5dp">
+    tools:ignore="RtlSymmetry">
 
     <TextView
         android:id="@+id/txtTag"
@@ -22,6 +24,7 @@
         android:id="@+id/txt1"
         style="@style/TextView_KalenderEintrag"
         android:singleLine="true"
+        android:layout_marginBottom="0.25dp"
         app:layout_constraintBottom_toTopOf="@+id/txt2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/txtTag"
@@ -33,6 +36,7 @@
         style="@style/TextView_KalenderEintrag"
         android:singleLine="true"
         android:visibility="gone"
+        android:layout_marginVertical="0.25dp"
         app:layout_constraintBottom_toTopOf="@+id/txt3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/txt1"
@@ -43,6 +47,8 @@
         android:id="@+id/txt3"
         style="@style/TextView_KalenderEintrag"
         android:singleLine="true"
+        android:layout_marginTop="0.33dp"
+        android:layout_marginBottom="0.25dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

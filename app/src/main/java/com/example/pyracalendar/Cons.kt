@@ -14,6 +14,7 @@ class Cons {
         const val SONSTIGES = "Sonstiges"
         const val URLAUB = "Urlaub"
         const val FERIEN = "Ferien"
+        const val SEASON = "Season"
         const val BUSINESS = "Business"
         const val FREMDVERANSTALTER = "Fremdveranstalter"
         const val PRIVAT = "Privat"

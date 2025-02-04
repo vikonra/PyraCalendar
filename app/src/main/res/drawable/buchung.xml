@@ -3,7 +3,8 @@
     <item>
         <shape>
             <solid android:color="@color/buchung" />
-            <stroke android:width="0.5dp" android:color="@color/buchung_rand" />
+            <corners android:radius="1.5dp" />
+
         </shape>
     </item>
 </selector>
