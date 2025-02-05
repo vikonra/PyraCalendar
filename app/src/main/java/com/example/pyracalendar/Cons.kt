@@ -9,6 +9,7 @@ class Cons {
         const val TABLET_ID = "tabletID"
         const val TABLET_NUMMER = "tabletNummer"
 
+        const val ANFRAGE = "Anfrage"
         const val BLOCKUNG = "Blockung"
         const val BUCHUNG = "Buchung"
         const val SONSTIGES = "Sonstiges"

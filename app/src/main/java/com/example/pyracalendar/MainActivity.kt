@@ -92,21 +92,23 @@ class MainActivity : FragmentActivity() {
         val eventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                var vaList: ArrayList<Event> = ArrayList()
+                val vaList: ArrayList<Event> = ArrayList()
 
                 for (eventListener in dataSnapshot.children) {
                     val event: Event? =
                         eventListener.getValue(Event::class.java)
                     if (event != null) {
-                        if (event.datum?.event?.beginn != null) {
-                            if (event.datum.event.beginn.substring(6, 10)
-                                    .toInt() == monthList[0].year || event.datum.event.beginn.substring(
-                                    6,
-                                    10
-                                )
-                                    .toInt() == monthList[11].year
-                            ) {
-                                vaList.add(event)
+                        if (!event.datum?.event?.beginn.isNullOrEmpty()) {
+                            if (event.typ?.status != Cons.ANFRAGE){
+                                if (event.datum?.event?.beginn?.substring(6, 10)
+                                        ?.toInt() == monthList[0].year || event.datum?.event?.beginn?.substring(
+                                        6,
+                                        10
+                                    )
+                                        ?.toInt() == monthList[11].year
+                                ) {
+                                    vaList.add(event)
+                                }
                             }
                         }
                     }
