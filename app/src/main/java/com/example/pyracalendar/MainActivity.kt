@@ -5,6 +5,9 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -12,6 +15,7 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.pyraapp.database.Event
 import com.example.pyracalendar.database.Veranstaltung
@@ -99,7 +103,7 @@ class MainActivity : FragmentActivity() {
                         eventListener.getValue(Event::class.java)
                     if (event != null) {
                         if (!event.datum?.event?.beginn.isNullOrEmpty()) {
-                            if (event.typ?.status != Cons.ANFRAGE){
+                            if (event.typ?.status != Cons.ANFRAGE) {
                                 if (event.datum?.event?.beginn?.substring(6, 10)
                                         ?.toInt() == monthList[0].year || event.datum?.event?.beginn?.substring(
                                         6,
@@ -132,9 +136,13 @@ class MainActivity : FragmentActivity() {
             //Aufbautage & Abbautage hinzufügen
             if (e.typ?.aufbautage == true) {
                 if (!e.datum?.aufbau?.beginn.isNullOrEmpty()) {
-                    val tage: Int = (inTagen(e.datum?.event?.beginn) - inTagen(e.datum?.aufbau?.beginn)) - 1
+                    val tage: Int =
+                        (inTagen(e.datum?.event?.beginn) - inTagen(e.datum?.aufbau?.beginn)) - 1
                     val date =
-                        LocalDate.parse(e.datum?.aufbau?.beginn, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        LocalDate.parse(
+                            e.datum?.aufbau?.beginn,
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                        )
                     for (i in 0..tage) {
                         val k = KalenderEintrag()
                         k.datum = date.plusDays(i.toLong())
@@ -309,12 +317,36 @@ class MainActivity : FragmentActivity() {
 
     private fun monatSetzen(bindingMonat: MonatBinding, t: KalenderEintrag) {
         val tage = listOf(
-            bindingMonat.tag1, bindingMonat.tag2, bindingMonat.tag3, bindingMonat.tag4, bindingMonat.tag5,
-            bindingMonat.tag6, bindingMonat.tag7, bindingMonat.tag8, bindingMonat.tag9, bindingMonat.tag10,
-            bindingMonat.tag11, bindingMonat.tag12, bindingMonat.tag13, bindingMonat.tag14, bindingMonat.tag15,
-            bindingMonat.tag16, bindingMonat.tag17, bindingMonat.tag18, bindingMonat.tag19, bindingMonat.tag20,
-            bindingMonat.tag21, bindingMonat.tag22, bindingMonat.tag23, bindingMonat.tag24, bindingMonat.tag25,
-            bindingMonat.tag26, bindingMonat.tag27, bindingMonat.tag28, bindingMonat.tag29, bindingMonat.tag30,
+            bindingMonat.tag1,
+            bindingMonat.tag2,
+            bindingMonat.tag3,
+            bindingMonat.tag4,
+            bindingMonat.tag5,
+            bindingMonat.tag6,
+            bindingMonat.tag7,
+            bindingMonat.tag8,
+            bindingMonat.tag9,
+            bindingMonat.tag10,
+            bindingMonat.tag11,
+            bindingMonat.tag12,
+            bindingMonat.tag13,
+            bindingMonat.tag14,
+            bindingMonat.tag15,
+            bindingMonat.tag16,
+            bindingMonat.tag17,
+            bindingMonat.tag18,
+            bindingMonat.tag19,
+            bindingMonat.tag20,
+            bindingMonat.tag21,
+            bindingMonat.tag22,
+            bindingMonat.tag23,
+            bindingMonat.tag24,
+            bindingMonat.tag25,
+            bindingMonat.tag26,
+            bindingMonat.tag27,
+            bindingMonat.tag28,
+            bindingMonat.tag29,
+            bindingMonat.tag30,
             bindingMonat.tag31
         )
 
@@ -326,10 +358,20 @@ class MainActivity : FragmentActivity() {
 
     @SuppressLint("ResourceAsColor")
     private fun tagSetzen(binding: TagBinding, t: KalenderEintrag) {
+
+        // Prüfen, ob es ein Android TV ist
+        val uiModeManager = getSystemService(UI_MODE_SERVICE) as android.app.UiModeManager
+        val isTv = uiModeManager.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+
         urlaubColor(binding, t.status)
         if (binding.txt1.text.isNullOrEmpty()) {
             if (t.status != Cons.URLAUB && t.status != Cons.FERIEN && t.status != Cons.SEASON) {
-                binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+                if (isTv) {
+                    binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+                } else {
+                    // "Tablet" oder sonstiges Gerät
+                    binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f)
+                }
                 binding.txt1.text = t.name
             }
             when (t.status) {
@@ -346,9 +388,11 @@ class MainActivity : FragmentActivity() {
                 Cons.SONSTIGES -> binding.txt1.setBackgroundResource(R.drawable.sonstiges)
                 Cons.URLAUB -> binding.txtUrlaub.text =
                     urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+
                 Cons.FERIEN -> binding.root.setBackgroundResource(
                     if (isWeekend(t.datum)) R.drawable.tag_ferien_wochenende else R.drawable.tag_ferien
                 )
+
                 Cons.SEASON -> binding.root.setBackgroundResource(
                     if (isWeekend(t.datum)) R.drawable.tag_season_wochenende else R.drawable.tag_season
                 )
@@ -356,8 +400,14 @@ class MainActivity : FragmentActivity() {
         } else if (binding.txt2.text.isNullOrEmpty()) {
             if (t.status != Cons.URLAUB && t.status != Cons.FERIEN && t.status != Cons.SEASON) {
                 binding.txt2.visibility = View.VISIBLE
-                binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
-                binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+                if (isTv) {
+                    binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+                    binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 5f)
+                } else {
+                    // "Tablet" oder sonstiges Gerät
+                    binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 7f)
+                    binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 7f)
+                }
                 binding.txt2.text = t.name
             }
             when (t.status) {
@@ -374,9 +424,11 @@ class MainActivity : FragmentActivity() {
                 Cons.SONSTIGES -> binding.txt2.setBackgroundResource(R.drawable.sonstiges)
                 Cons.URLAUB -> binding.txtUrlaub.text =
                     urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+
                 Cons.FERIEN -> binding.root.setBackgroundResource(
                     if (isWeekend(t.datum)) R.drawable.tag_ferien_wochenende else R.drawable.tag_ferien
                 )
+
                 Cons.SEASON -> binding.root.setBackgroundResource(
                     if (isWeekend(t.datum)) R.drawable.tag_season_wochenende else R.drawable.tag_season
                 )
@@ -385,9 +437,16 @@ class MainActivity : FragmentActivity() {
             if (t.status != Cons.URLAUB && t.status != Cons.FERIEN && t.status != Cons.SEASON) {
                 binding.txt3.visibility = View.VISIBLE
                 binding.txt3.text = t.name
-                binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
-                binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
-                binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+                if (isTv) {
+                    binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+                    binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+                    binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 4f)
+                } else {
+                    // "Tablet" oder sonstiges Gerät
+                    binding.txt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+                    binding.txt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+                    binding.txt3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6f)
+                }
             }
             when (t.status) {
                 Cons.BLOCKUNG -> {
@@ -403,13 +462,39 @@ class MainActivity : FragmentActivity() {
                 Cons.SONSTIGES -> binding.txt3.setBackgroundResource(R.drawable.sonstiges)
                 Cons.URLAUB -> binding.txtUrlaub.text =
                     urlaubSetzen(binding.txtUrlaub.text.toString(), t.name)
+
                 Cons.FERIEN -> binding.root.setBackgroundResource(
                     if (isWeekend(t.datum)) R.drawable.tag_ferien_wochenende else R.drawable.tag_ferien
                 )
+
                 Cons.SEASON -> binding.root.setBackgroundResource(
                     if (isWeekend(t.datum)) R.drawable.tag_season_wochenende else R.drawable.tag_season
                 )
             }
+        }
+        if (t.datum.isEqual(LocalDate.now())) { //Rahmen heute setzen
+            // Vorhandenes Background holen
+            val oldBackground: Drawable? = binding.root.background
+
+            // Neuen Stroke als GradientDrawable erzeugen
+            val density = resources.displayMetrics.density
+            val stroke = GradientDrawable().apply {
+                setColor(Color.TRANSPARENT)
+                setStroke(
+                    (2 * density).toInt(),
+                    ContextCompat.getColor(this@MainActivity, R.color.rahmen_heute)
+                )
+            }
+
+            // Beide zusammen als LayerDrawable
+            val layers = arrayOfNulls<Drawable>(2)
+            layers[0] = oldBackground
+            layers[1] = stroke
+
+            val layerDrawable = LayerDrawable(layers)
+
+            // Setze die kombinierte Version zurück
+            binding.root.background = layerDrawable
         }
     }
 
@@ -453,15 +538,37 @@ class MainActivity : FragmentActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun setTagNummern() {
-        val monthAbbreviations = listOf("Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez")
+        val monthAbbreviations = listOf(
+            "Jan",
+            "Feb",
+            "Mär",
+            "Apr",
+            "Mai",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Okt",
+            "Nov",
+            "Dez"
+        )
 
         monthListString.clear()
         monthListString.addAll(monthList.map { monthAbbreviations[it.monthValue - 1] })
 
         val monthTextViews = listOf(
-            binding.titel.txtMonat1, binding.titel.txtMonat2, binding.titel.txtMonat3, binding.titel.txtMonat4,
-            binding.titel.txtMonat5, binding.titel.txtMonat6, binding.titel.txtMonat7, binding.titel.txtMonat8,
-            binding.titel.txtMonat9, binding.titel.txtMonat10, binding.titel.txtMonat11, binding.titel.txtMonat12
+            binding.titel.txtMonat1,
+            binding.titel.txtMonat2,
+            binding.titel.txtMonat3,
+            binding.titel.txtMonat4,
+            binding.titel.txtMonat5,
+            binding.titel.txtMonat6,
+            binding.titel.txtMonat7,
+            binding.titel.txtMonat8,
+            binding.titel.txtMonat9,
+            binding.titel.txtMonat10,
+            binding.titel.txtMonat11,
+            binding.titel.txtMonat12
         )
 
         monthTextViews.forEachIndexed { index, textView ->

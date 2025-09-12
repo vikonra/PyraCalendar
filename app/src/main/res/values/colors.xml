@@ -26,4 +26,5 @@
     <color name="sonstiges_rand">#608697</color>
     <color name="rahmen">#B6B6B6</color>
     <color name="rahmen_wochenende">#DDDDDD</color>
+    <color name="rahmen_heute">#E39420</color>
 </resources>
