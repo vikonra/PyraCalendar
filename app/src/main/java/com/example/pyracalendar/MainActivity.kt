@@ -507,9 +507,9 @@ class MainActivity : FragmentActivity() {
 
     private fun urlaubSetzen(current: String, toAdd: String): String {
         return if (current.isEmpty()) {
-            toAdd.substring(0, 1)
+            toAdd.take(1)
         } else {
-            current + ", " + toAdd.substring(0, 1)
+            current + ", " + toAdd.take(1)
         }
     }
 
@@ -589,6 +589,8 @@ class MainActivity : FragmentActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun setTagNummerMonat(binding: MonatBinding, jahr: Int, monat: Int) {
+        val today = LocalDate.now()
+
         for (i in 0 until binding.root.childCount) {
             val tagLayout = binding.root.getChildAt(i) as ConstraintLayout
             val tagTextView = tagLayout.getChildAt(0) as TextView
@@ -598,6 +600,29 @@ class MainActivity : FragmentActivity() {
                 if (isWeekend(datum)) {
                     tagLayout.setBackgroundResource(R.drawable.tag_wochenende)
                 }
+                if (datum.isEqual(today)) {
+                    tagLayout.setBackgroundResource(R.drawable.tag_heute)
+                }
+
+                if (datum == today) {
+                    val oldBackground: Drawable? = tagLayout.background
+
+                    val density = resources.displayMetrics.density
+                    val stroke = GradientDrawable().apply {
+                        setColor(Color.TRANSPARENT)
+                        setStroke(
+                            (2 * density).toInt(),
+                            ContextCompat.getColor(this@MainActivity, R.color.rahmen_heute)
+                        )
+                    }
+
+                    val layers = arrayOfNulls<Drawable>(2)
+                    layers[0] = oldBackground
+                    layers[1] = stroke
+
+                    tagLayout.background = LayerDrawable(layers)
+                }
+
             } catch (_: DateTimeException) {
 
             }
